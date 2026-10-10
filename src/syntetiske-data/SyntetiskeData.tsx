@@ -8,6 +8,7 @@ import { FUNDAMENTET_FRAMES, FUNDAMENTET_HOLDS, Fundamentet } from "./scenes/Fun
 import { Kapittel, KAPITTEL_FRAMES } from "./scenes/Kapittel";
 import { Problemet, PROBLEMET_FRAMES, PROBLEMET_HOLDS } from "./scenes/Problemet";
 import { Byttet, BYTTET_FRAMES, BYTTET_HOLDS } from "./scenes/Byttet";
+import { Livslop, LIVSLOP_FRAMES, LIVSLOP_HOLDS } from "./scenes/Livslop";
 import { Oppsummering, OPPSUMMERING_FRAMES, OPPSUMMERING_HOLDS } from "./scenes/Oppsummering";
 import { TITTEL_FRAMES, TITTEL_HOLDS, Tittel } from "./scenes/Tittel";
 
@@ -17,8 +18,9 @@ const KapittelFundamentet = () => (
 const KapittelFakturering = () => <Kapittel n={2} title="Fakturering" subtitle="Hvert kvartal: fra register til faktura" />;
 const KapittelAfp = () => <Kapittel n={3} title="Søknadsbehandling" subtitle="Én person søker avtalefestet pensjon" />;
 const KapittelProblemet = () => <Kapittel n={4} title="Problemet" subtitle="Alle disse dataene handler om ekte mennesker" />;
-const KapittelOppsummering = () => <Kapittel n={6} title="Oppsummering" subtitle="Dette har vi oppnådd med syntetiske data" />;
+const KapittelOppsummering = () => <Kapittel n={7} title="Oppsummering" subtitle="Dette har vi oppnådd med syntetiske data" />;
 const KapittelByttet = () => <Kapittel n={5} title="Erstatningen" subtitle="Samme Gremlin. Nye kilder." />;
+const KapittelLivslop = () => <Kapittel n={6} title="Et levende testmiljø" subtitle="Fra tom database til syntetisk hverdag" />;
 
 // Scenene i rekkefølge. Lengde og pauser bestemmes av hver scene selv.
 // `id` vises i tittelfeltet; kapittelkortet hører til scenen det introduserer.
@@ -34,8 +36,10 @@ const SCENES = [
   { key: "problemet", id: "4 · Problemet", frames: PROBLEMET_FRAMES, holds: PROBLEMET_HOLDS, Component: Problemet },
   { key: "kap-byttet", id: "5 · Erstatningen", frames: KAPITTEL_FRAMES, holds: [] as Hold[], Component: KapittelByttet },
   { key: "byttet", id: "5 · Erstatningen", frames: BYTTET_FRAMES, holds: BYTTET_HOLDS, Component: Byttet },
-  { key: "kap-oppsummering", id: "6 · Oppsummering", frames: KAPITTEL_FRAMES, holds: [] as Hold[], Component: KapittelOppsummering },
-  { key: "oppsummering", id: "6 · Oppsummering", frames: OPPSUMMERING_FRAMES, holds: OPPSUMMERING_HOLDS, Component: Oppsummering },
+  { key: "kap-livslop", id: "6 · Et levende testmiljø", frames: KAPITTEL_FRAMES, holds: [] as Hold[], Component: KapittelLivslop },
+  { key: "livslop", id: "6 · Et levende testmiljø", frames: LIVSLOP_FRAMES, holds: LIVSLOP_HOLDS, Component: Livslop },
+  { key: "kap-oppsummering", id: "7 · Oppsummering", frames: KAPITTEL_FRAMES, holds: [] as Hold[], Component: KapittelOppsummering },
+  { key: "oppsummering", id: "7 · Oppsummering", frames: OPPSUMMERING_FRAMES, holds: OPPSUMMERING_HOLDS, Component: Oppsummering },
 ];
 
 type SceneKey = (typeof SCENES)[number]["key"];
@@ -84,6 +88,11 @@ const GREMLIN: GremlinKey[] = [
   { at: at("byttet", 258), expression: "overrasket", transition: "shake" },
   { at: at("byttet", 305), expression: "spørrende", transition: "blink" },
   { at: at("byttet", 385), expression: "triumferende", transition: "pop" },
+  { at: at("livslop", 0), expression: "nøytral", transition: "blink" },
+  { at: at("livslop", 150), expression: "spørrende", transition: "blink" },
+  { at: at("livslop", 270), expression: "overrasket", transition: "shake" },
+  { at: at("livslop", 420), expression: "glad", transition: "pop" },
+  { at: at("livslop", 625), expression: "triumferende", transition: "pop" },
   { at: at("oppsummering", 0), expression: "nøytral", transition: "blink" },
   { at: at("oppsummering", 20), expression: "glad", transition: "pop" },
   { at: at("oppsummering", 185), expression: "overrasket", transition: "shake" },
