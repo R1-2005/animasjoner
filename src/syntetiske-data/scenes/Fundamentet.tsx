@@ -106,7 +106,8 @@ const FOREST = Array.from({ length: GRID.cols * GRID.rows }, (_, i) => {
   return { col, row, fgs, dist, isMain: col === MAIN_CELL.col && row === MAIN_CELL.row };
 });
 
-const REGISTER = { cx: 330, top: 470, w: 320, h: 210 };
+// Registeret blir stående her inn i neste scene.
+export const REGISTER = { cx: 330, top: 470, w: 320, h: 210 };
 
 const formatNumber = (n: number) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
@@ -140,7 +141,7 @@ export const Fundamentet: React.FC = () => {
   return (
     <AbsoluteFill>
       <svg width="100%" height="100%" viewBox="0 0 1920 1080">
-        <Header title="Fundamentet" subtitle="Tilslutningsregisteret — vårt eget register over bedriftene i AFP-ordningen" />
+        <Header title="Fundamentet" subtitle="Tilslutningsregisteret — vårt eget register over bedriftene i AFP-ordningen" end={FUNDAMENTET_FRAMES - 15} />
 
         {/* Kilde: Enhetsregisteret */}
         <g opacity={tidy}>
@@ -219,7 +220,7 @@ export const Fundamentet: React.FC = () => {
           fontWeight={700} fill={colors.ink} opacity={ramp(frame, T.register + 15, 15)}>
           Tilslutningsregisteret
         </text>
-        <g opacity={ramp(frame, T.poeng, 20)} transform={`translate(${(1 - ramp(frame, T.poeng, 20)) * 20} 0)`}>
+        <g opacity={ramp(frame, T.poeng, 20) * (1 - ramp(frame, FUNDAMENTET_FRAMES - 15, 15))} transform={`translate(${(1 - ramp(frame, T.poeng, 20)) * 20} 0)`}>
           <text x={640} y={560} fontFamily={fonts.sans} fontSize={56} fontWeight={800} fill={colors.ink}>
             Vårt eget register.
           </text>

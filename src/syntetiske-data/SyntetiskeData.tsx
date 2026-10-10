@@ -2,6 +2,7 @@ import { Series, useCurrentFrame } from "remotion";
 import { Gremlin, type GremlinKey } from "../components/Gremlin";
 import { holdFrames, wallFrame, WithHolds } from "../components/Holds";
 import { Paper } from "../components/Paper";
+import { FAKTURERING_FRAMES, FAKTURERING_HOLDS, Fakturering } from "./scenes/Fakturering";
 import { FUNDAMENTET_FRAMES, FUNDAMENTET_HOLDS, Fundamentet } from "./scenes/Fundamentet";
 import { TITTEL_FRAMES, TITTEL_HOLDS, Tittel } from "./scenes/Tittel";
 
@@ -9,6 +10,7 @@ import { TITTEL_FRAMES, TITTEL_HOLDS, Tittel } from "./scenes/Tittel";
 const SCENES = [
   { id: "0 · Tittel", frames: TITTEL_FRAMES, holds: TITTEL_HOLDS, Component: Tittel },
   { id: "1 · Fundamentet", frames: FUNDAMENTET_FRAMES, holds: FUNDAMENTET_HOLDS, Component: Fundamentet },
+  { id: "2 · Fakturering", frames: FAKTURERING_FRAMES, holds: FAKTURERING_HOLDS, Component: Fakturering },
 ];
 
 const length = (s: (typeof SCENES)[number]) => s.frames + holdFrames(s.holds);
@@ -26,6 +28,11 @@ const GREMLIN: GremlinKey[] = [
   { at: at(1, 60), expression: "spørrende", transition: "blink" },
   { at: at(1, 385), expression: "overrasket", transition: "shake" },
   { at: at(1, 495), expression: "glad", transition: "pop" },
+  { at: at(2, 0), expression: "nøytral", transition: "blink" },
+  { at: at(2, 175), expression: "overrasket", transition: "shake" },
+  { at: at(2, 265), expression: "spørrende", transition: "blink" },
+  { at: at(2, 345), expression: "triumferende", transition: "pop" },
+  { at: at(2, 592), expression: "oppgitt", transition: "blink" },
 ];
 
 export const SyntetiskeData: React.FC = () => {
