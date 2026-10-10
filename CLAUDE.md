@@ -22,7 +22,16 @@ Everything else comes from external integrations: **Nav** (arbeidsforhold, ytels
 
 **Kvartalsfakturering** (premie). Start in Tilslutningsregisteret → collect the Virksomheter in the invoice basis → fetch each Foretak's employees from Nav (arbeidsforhold) → order each person's income for the current year from Skatteetaten → calculate premie per Virksomhet, summed per FG = one invoice → fetch names from Folkeregisteret for the invoice appendix (each person's contribution to the premie). Scale per quarter: about 17 000 Virksomheter and over 1 million persons. Over 10 billion NOK invoiced per year.
 
-**AFP-søknad**. Usually arrives from Nav, because people apply together with alderspensjon (Nav's DinPensjon) → fetch the person's arbeidsforhold from Nav → check that the employer is a Virksomhet in an FG that is a member → fetch inntekter from Skatteetaten → fetch ytelser from Nav (earlier public-sector AFP, sickness, disability, AAP, etc.) → vilkårsprøving (including ansiennitet) → vedtak sent to Nav, which makes the final decision together with alderspensjon. If granted: monthly payment.
+**AFP-søknad** (the term is **søknadsbehandling**, never «saksbehandling»: Gremlin does not make the final decision, Nav does). People usually apply together with alderspensjon (Nav's DinPensjon), so applications come from Nav. Order:
+1. Gremlin asks Nav's API for new applications.
+2. Fetches updated personal data (navn, adresse, etc.) from Folkeregisteret.
+3. Asks Nav whether the person has received AFP from the public sector (offentlig AFP).
+4. Fetches arbeidsforhold from Nav.
+5. **Fase 1**: has the person received offentlig AFP (→ avslag)? Is the person employed in a member company (Virksomhet in a member FG, checked against Tilslutningsregisteret)?
+6. If no offentlig AFP and employed in a member company → **Fase 2** (vilkårsprøving): fetch inntekter from Skatteetaten.
+7. Fetch arbeidsforhold again for the whole ansiennitet period, plus ytelser from Nav (sickness, disability, AAP, etc.).
+8. Behovsprøving/vilkårsprøving → avslag or innvilget.
+9. Send vedtak to Nav, which makes the final decision together with alderspensjon. If granted: monthly payment.
 
 **Syntetisk database** (development, testing, training; required for privacy). It lives in its own system and exposes **Mock APIs** that emulate the real Nav, Skatteetaten, Folkeregisteret and regnskap APIs, so Gremlin runs identically in the synthetic environment and in production.
 - Its Tilslutningsregister is built from real Foretak and Virksomheter (recognisable), with all personal data removed: contact info, daglig leder, enkeltpersonforetak.
@@ -45,6 +54,8 @@ Everything else comes from external integrations: **Nav** (arbeidsforhold, ytels
 - 2026-10-10: The owner narrates live while the animation plays, so animations need **holds** at natural talking points. For `SyntetiskeData` scene 0/1: 5 s on the title, 20 s on the finished tree with annotations, 5 s on the forest with the counter. Scene 1 was called "VAKKERT!" — the tree build → zoom-out-to-forest → gather-into-register sequence is a pattern worth reusing.
 
 - 2026-10-10: Scene 2 «Fakturering» layout, meant to be reused by scene 3 (AFP) and scene 6 (same processes on synthetic data): Tilslutningsregisteret left (where scene 1 ends), Gremlin box in the middle, external sources Nav / Skatteetaten / Folkeregisteret stacked on the right with a request line above and a response line below each. Numbered steps ①–⑥ support live narration. Counters bottom-left (17 000 virksomheter, 1 000 000+ personer, > 10 mrd kr per år).
+
+- 2026-10-10: Scene 3 «AFP-søknad» follows one fictional person (Kari Nordmann, 62, Eksempelbedriften AS · Bergen, the company from scene 1) through the same layout, now in `src/syntetiske-data/layout.ts`. Single packets instead of streams («Én person. Samme kilder som for en million.»), Fase 1 (offentlig AFP? member company? checked against Tilslutningsregisteret) and Fase 2 (vilkårsprøving) checklists, ending in an «INNVILGET» stamp. The applicant card fills in as data arrives. Steps are listed bottom-left so the presenter can talk through them.
 
 ## Stack
 

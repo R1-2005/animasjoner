@@ -12,7 +12,7 @@ import { Step } from "../../components/Step";
 import { Stream } from "../../components/Stream";
 import { ramp, typewriter } from "../../style/anim";
 import { theme } from "../../style/theme";
-import { REGISTER } from "./Fundamentet";
+import { ENGINE, formatNumber, REGISTER, REGISTER_RIGHT, req, res, SOURCE_Y, SRC } from "../layout";
 
 export const FAKTURERING_FRAMES = 660;
 
@@ -42,22 +42,13 @@ export const FAKTURERING_HOLDS: Hold[] = [
   { at: 650, frames: 10 * 30 },
 ];
 
-// Gremlin i midten, eksterne kilder i en kolonne til høyre.
-const ENGINE = { x: 760, y: 270, w: 400, h: 430 };
 const SOURCES = [
-  { name: "Nav", cy: 320, start: T.kilder },
-  { name: "Skatteetaten", cy: 485, start: T.kilder + 10 },
-  { name: "Folkeregisteret", cy: 650, start: T.kilder + 20 },
+  { name: "Nav", cy: SOURCE_Y.nav, start: T.kilder },
+  { name: "Skatteetaten", cy: SOURCE_Y.skatteetaten, start: T.kilder + 10 },
+  { name: "Folkeregisteret", cy: SOURCE_Y.folkeregisteret, start: T.kilder + 20 },
 ];
-const SRC = { x: 1440, w: 360, h: 100 };
-const RIGHT = ENGINE.x + ENGINE.w;
-// Forespørsel går på linjen over midten, svaret kommer tilbake på linjen under.
-const req = (cy: number) => ({ from: { x: RIGHT, y: cy - 15 }, to: { x: SRC.x, y: cy - 15 } });
-const res = (cy: number) => ({ from: { x: SRC.x, y: cy + 20 }, to: { x: RIGHT, y: cy + 20 } });
 
-const REG_LINE = { from: { x: REGISTER.cx + REGISTER.w / 2, y: 575 }, to: { x: ENGINE.x, y: 575 } };
-
-const formatNumber = (n: number) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+const REG_LINE = { from: { x: REGISTER_RIGHT, y: 575 }, to: { x: ENGINE.x, y: 575 } };
 
 // Tannhjulenes vinkel: summen av hastigheten per frame, raskere når det jobbes.
 const gearAngle = (frame: number) => {

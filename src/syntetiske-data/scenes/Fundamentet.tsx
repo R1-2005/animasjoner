@@ -8,6 +8,7 @@ import type { Hold } from "../../components/Holds";
 import { Path } from "../../components/Path";
 import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
+import { formatNumber, REGISTER } from "../layout";
 
 export const FUNDAMENTET_FRAMES = 575;
 
@@ -106,10 +107,7 @@ const FOREST = Array.from({ length: GRID.cols * GRID.rows }, (_, i) => {
   return { col, row, fgs, dist, isMain: col === MAIN_CELL.col && row === MAIN_CELL.row };
 });
 
-// Registeret blir stående her inn i neste scene.
-export const REGISTER = { cx: 330, top: 470, w: 320, h: 210 };
 
-const formatNumber = (n: number) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
 export const Fundamentet: React.FC = () => {
   const frame = useCurrentFrame();
