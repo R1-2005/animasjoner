@@ -190,7 +190,7 @@ export const Problemet: React.FC = () => {
 
           {/* Miljøene som ikke får bruke dataene */}
           {ENVS.map((name, i) => (
-            <Box key={name} x={ENV_X[i] - ENV.w / 2} y={ENV.y} w={ENV.w} h={ENV.h} start={T.miljoer + i * 8} tag={i === 0 ? "[MILJØER]" : undefined}>
+            <Box key={name} x={ENV_X[i] - ENV.w / 2} y={ENV.y} w={ENV.w} h={ENV.h} start={T.miljoer + i * 8} tag={i === 0 ? "[FORMÅL]" : undefined}>
               <text x={ENV_X[i]} y={ENV.y + 38} textAnchor="middle" fontFamily={fonts.sans} fontSize={26} fontWeight={700} fill={colors.ink}>
                 {name}
               </text>

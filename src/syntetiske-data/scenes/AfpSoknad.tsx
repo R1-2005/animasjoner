@@ -121,7 +121,7 @@ export const AfpSoknad: React.FC = () => {
     <AbsoluteFill>
       <svg width="100%" height="100%" viewBox="0 0 1920 1080">
         <Wipe start={T.ryddOpp} id="wipe-afp-top">
-        <Header title="AFP-søknad" subtitle="Én person søker avtalefestet pensjon" start={-20} />
+        <Header title="Søknadsbehandling" subtitle="Én person søker avtalefestet pensjon" start={-20} />
 
         {/* Søkeren */}
         <Box x={120} y={240} w={540} h={170} start={T.kort} tag="[SØKER]">

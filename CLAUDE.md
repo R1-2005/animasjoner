@@ -59,6 +59,10 @@ Everything else comes from external integrations: **Nav** (arbeidsforhold, ytels
 
 - 2026-10-10: Scene 4 «Problemet»: the production picture again; one Nav packet is magnified into a person card (Ola Nordmann, fødselsnummer, adresse, lønn, sykepenger) with a «PERSONOPPLYSNINGER» stamp; every response dot turns into a person figure («Hver prikk er et ekte menneske»); Utvikling/Test/Opplæring are blocked by a PERSONVERN barrier («Ikke engang «bare litt».»); bridge line «Vi trenger data som oppfører seg som ekte — uten å være ekte.» Every scene from 3 on ends with a `Wipe` leaving only «gullet», followed by a `Kapittel` card.
 
+- 2026-10-10: Scene 5 «Byttet»: Gremlin box tagged TESTMILJØ; personal data (kontaktpersoner, daglig leder, enkeltpersonforetak) lifts out of «gullet» and is struck through («Bedriftene er ekte. Personene er fjernet.»); the real sources are blocked, unplugged («plopp») and slide away; a dashed purple «[SYNTETISK DATABASE]» with Nav/Skatteetaten/Folkeregisteret «mock API · syntetisk» slides into exactly the same slots; flows resume with purple person figures («Samme grensesnitt. Nye data.»). Theme color `synthetic` (purple) = synthetic people/data, the counterpart to red `person`.
+
+- 2026-10-10: Renamed parts: DEL 3 «Søknadsbehandling» (not «AFP-søknad»), DEL 5 «Erstatningen» (code key still `byttet`), the environment tag in Problemet is «[FORMÅL]». Persons never receive invoices (companies do), so person jokes must not mention invoices. The film now ends with DEL 6 «Oppsummering»: trygt miljø for utvikling/test/opplæring, applikasjonene identiske mot syntetiske og reelle data («Gremlin merker ingen forskjell»), simulerer edge-cases (død, fødselsnummerskifte, navneendring, flytting), kan integreres mot andre syntetiske miljøer (Dolly, Tenor) for ende-til-ende-test. 2 s pause between points. Original storyboard scenes «Samme prosesser» and «Livsløp» are not built (yet).
+
 ## Stack
 
 Remotion 4 (React 19 + TypeScript) for programmatic video. Node 24. Remotion bundles its own ffmpeg and downloads a headless Chrome on first render, so no system ffmpeg/Chrome is needed.

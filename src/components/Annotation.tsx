@@ -13,10 +13,12 @@ type Props = {
   text: string;
   start: number;
   color?: string;
+  // Vis hele teksten med en gang i stedet for å skrive den ut tegn for tegn.
+  instant?: boolean;
 };
 
 // Påskrift med henvisningslinje, som på en teknisk tegning. Teksten skrives ut tegn for tegn.
-export const Annotation: React.FC<Props> = ({ target, at, text, start, color = theme.colors.highlight }) => {
+export const Annotation: React.FC<Props> = ({ target, at, text, start, color = theme.colors.highlight, instant = false }) => {
   const frame = useCurrentFrame();
   const line = ramp(frame, start, 25);
   const typing = ramp(frame, start + 12, Math.max(15, text.length * 1.2), (t) => t);
@@ -43,7 +45,7 @@ export const Annotation: React.FC<Props> = ({ target, at, text, start, color = t
       <path d={d} stroke={color} strokeWidth={stroke.thin * 1.5} fill="none"
         strokeDasharray={strokeDasharray} strokeDashoffset={strokeDashoffset} />
       <text x={at.x} y={at.y} fontFamily={fonts.mono} fontSize={fontSize} fontWeight={600} fill={color}>
-        {typewriter(text, typing)}
+        {instant ? text : typewriter(text, typing)}
       </text>
     </g>
   );

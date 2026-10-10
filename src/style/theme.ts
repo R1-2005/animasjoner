@@ -17,6 +17,8 @@ export const theme = {
     success: "#1F9D6B",
     // Ekte mennesker / personopplysninger. Skal ikke forveksles med oransje (data i bevegelse).
     person: "#D62839",
+    // Syntetiske mennesker / syntetiske data: ser ekte ut, men har aldri eksistert.
+    synthetic: "#7A4FD0",
     // «Gullet»: Tilslutningsregisteret. Mørk gull til tekst/streker, varm gull til fyll.
     gold: "#B8860B",
     goldFill: "#E8B931",
