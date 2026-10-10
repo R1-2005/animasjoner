@@ -9,11 +9,12 @@ import type { Hold } from "../../components/Holds";
 import { Packet } from "../../components/Packet";
 import { Sparkles } from "../../components/Sparkles";
 import { Step } from "../../components/Step";
+import { Wipe } from "../../components/Wipe";
 import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
 import { ENGINE, GOLD_SPARKLES, REGISTER_LEVEL, REGISTER, REGISTER_RIGHT, req, res, SOURCE_Y, SRC } from "../layout";
 
-export const AFP_FRAMES = 880;
+export const AFP_FRAMES = 902;
 
 // Tidslinje for scenen (lokale frames). Rekkefølgen følger den faktiske søknadsbehandlingen.
 const T = {
@@ -33,6 +34,7 @@ const T = {
   stempel: 735,
   vedtak: 770, // 9 vedtak til Nav
   notatNav: 815,
+  ryddOpp: 875, // etter sluttpausen: arket viskes ut, bare «gullet» blir stående
 };
 
 // Pauser: når søkeren er presentert, før vedtaket sendes, og på sluttbildet.
@@ -118,6 +120,7 @@ export const AfpSoknad: React.FC = () => {
   return (
     <AbsoluteFill>
       <svg width="100%" height="100%" viewBox="0 0 1920 1080">
+        <Wipe start={T.ryddOpp} id="wipe-afp-top">
         <Header title="AFP-søknad" subtitle="Én person søker avtalefestet pensjon" start={-20} />
 
         {/* Søkeren */}
@@ -130,6 +133,8 @@ export const AfpSoknad: React.FC = () => {
         {cardRow(356, "Offentlig AFP: nei", T.offentligAfp + 50)}
         {cardRow(386, "Eksempelbedriften AS · Bergen", T.arbeid + 50)}
 
+        </Wipe>
+
         {/* Registeret */}
         <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={-30} level={REGISTER_LEVEL} gold={1} />
         <Sparkles points={GOLD_SPARKLES.slice(0, 3)} start={0} period={90} />
@@ -137,6 +142,7 @@ export const AfpSoknad: React.FC = () => {
           fontWeight={700} fill={colors.ink}>
           Tilslutningsregisteret
         </text>
+        <Wipe start={T.ryddOpp} id="wipe-afp">
         <text x={REGISTER.cx} y={REGISTER.top + REGISTER.h + 130} textAnchor="middle" fontFamily={fonts.mono} fontSize={20}
           fontWeight={600} fill={colors.success} opacity={ramp(frame, T.fase1 + 65, 15)}>
           Bergen → FG Vest → medlem ✓
@@ -223,6 +229,7 @@ export const AfpSoknad: React.FC = () => {
         <Step n={7} x={460} y={907} label="ansiennitet + ytelser" start={T.historikk} activeUntil={T.fase2} />
         <Step n={8} x={460} y={939} label="fase 2: vilkårsprøving" start={T.fase2} activeUntil={T.vedtak} />
         <Step n={9} x={460} y={971} label="vedtak til Nav" start={T.vedtak} />
+        </Wipe>
       </svg>
     </AbsoluteFill>
   );

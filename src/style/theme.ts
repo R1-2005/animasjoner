@@ -15,6 +15,8 @@ export const theme = {
     accent: "#2F6BFF",
     highlight: "#FF6B35",
     success: "#1F9D6B",
+    // Ekte mennesker / personopplysninger. Skal ikke forveksles med oransje (data i bevegelse).
+    person: "#D62839",
     // «Gullet»: Tilslutningsregisteret. Mørk gull til tekst/streker, varm gull til fyll.
     gold: "#B8860B",
     goldFill: "#E8B931",

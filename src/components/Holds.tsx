@@ -1,3 +1,4 @@
+import { createContext, useContext } from "react";
 import { Freeze, useCurrentFrame } from "remotion";
 
 // Pauser der bildet står stille mens foredragsholderen snakker.
@@ -21,8 +22,22 @@ const sceneFrame = (holds: Hold[], wall: number) => {
   return t;
 };
 
+// "Levende tid": scenens tid uten pauser. Det som skal fortsette å bevege seg mens bildet
+// ellers står stille (dataflyt, tannhjul), bruker denne i stedet for useCurrentFrame().
+type LiveTime = { live: number; toWall: (local: number) => number };
+const LiveTimeContext = createContext<LiveTime | null>(null);
+
+export const useLiveTime = (): LiveTime => {
+  const frame = useCurrentFrame();
+  return useContext(LiveTimeContext) ?? { live: frame, toWall: (local) => local };
+};
+
 // Spiller av barna med pausene lagt inn.
 export const WithHolds: React.FC<{ holds: Hold[]; children: React.ReactNode }> = ({ holds, children }) => {
   const frame = useCurrentFrame();
-  return <Freeze frame={sceneFrame(holds, frame)}>{children}</Freeze>;
+  return (
+    <LiveTimeContext.Provider value={{ live: frame, toWall: (local) => wallFrame(holds, local) }}>
+      <Freeze frame={sceneFrame(holds, frame)}>{children}</Freeze>
+    </LiveTimeContext.Provider>
+  );
 };

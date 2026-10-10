@@ -6,6 +6,7 @@ import { AFP_FRAMES, AFP_HOLDS, AfpSoknad } from "./scenes/AfpSoknad";
 import { FAKTURERING_FRAMES, FAKTURERING_HOLDS, Fakturering } from "./scenes/Fakturering";
 import { FUNDAMENTET_FRAMES, FUNDAMENTET_HOLDS, Fundamentet } from "./scenes/Fundamentet";
 import { Kapittel, KAPITTEL_FRAMES } from "./scenes/Kapittel";
+import { Problemet, PROBLEMET_FRAMES, PROBLEMET_HOLDS } from "./scenes/Problemet";
 import { TITTEL_FRAMES, TITTEL_HOLDS, Tittel } from "./scenes/Tittel";
 
 const KapittelFundamentet = () => (
@@ -13,6 +14,7 @@ const KapittelFundamentet = () => (
 );
 const KapittelFakturering = () => <Kapittel n={2} title="Fakturering" subtitle="Hvert kvartal: fra register til faktura" />;
 const KapittelAfp = () => <Kapittel n={3} title="AFP-søknad" subtitle="Én person søker avtalefestet pensjon" />;
+const KapittelProblemet = () => <Kapittel n={4} title="Problemet" subtitle="Alle disse dataene handler om ekte mennesker" />;
 
 // Scenene i rekkefølge. Lengde og pauser bestemmes av hver scene selv.
 // `id` vises i tittelfeltet; kapittelkortet hører til scenen det introduserer.
@@ -24,6 +26,8 @@ const SCENES = [
   { key: "fakturering", id: "2 · Fakturering", frames: FAKTURERING_FRAMES, holds: FAKTURERING_HOLDS, Component: Fakturering },
   { key: "kap-afp", id: "3 · AFP-søknad", frames: KAPITTEL_FRAMES, holds: [] as Hold[], Component: KapittelAfp },
   { key: "afp", id: "3 · AFP-søknad", frames: AFP_FRAMES, holds: AFP_HOLDS, Component: AfpSoknad },
+  { key: "kap-problemet", id: "4 · Problemet", frames: KAPITTEL_FRAMES, holds: [] as Hold[], Component: KapittelProblemet },
+  { key: "problemet", id: "4 · Problemet", frames: PROBLEMET_FRAMES, holds: PROBLEMET_HOLDS, Component: Problemet },
 ];
 
 type SceneKey = (typeof SCENES)[number]["key"];
@@ -60,6 +64,12 @@ const GREMLIN: GremlinKey[] = [
   { at: at("afp", 645), expression: "bekymret", transition: "blink" },
   { at: at("afp", 737), expression: "triumferende", transition: "pop" },
   { at: at("afp", 818), expression: "frustrert", transition: "blink" },
+  { at: at("problemet", 0), expression: "nøytral", transition: "blink" },
+  { at: at("problemet", 135), expression: "spørrende", transition: "blink" },
+  { at: at("problemet", 238), expression: "overrasket", transition: "shake" },
+  { at: at("problemet", 315), expression: "bekymret", transition: "blink" },
+  { at: at("problemet", 445), expression: "frustrert", transition: "shake" },
+  { at: at("problemet", 505), expression: "spørrende", transition: "blink" },
 ];
 
 export const SyntetiskeData: React.FC = () => {
