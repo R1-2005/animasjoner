@@ -40,7 +40,7 @@ const T = {
 
 // Pauser for foredragsholderen: på det ferdige treet, og på skogen med telleren.
 export const FUNDAMENTET_HOLDS: Hold[] = [
-  { at: 340, frames: 20 * 30 },
+  { at: 340, frames: 6 * 30 },
   { at: 440, frames: 5 * 30 },
 ];
 
@@ -185,7 +185,7 @@ export const Fundamentet: React.FC = () => {
           <Annotation target={{ x: main.fg[0].x - 160, y: TREE.fgY + 45 }} at={{ x: 120, y: 640 }} start={T.notatFaktura}
             text="Får én faktura hvert kvartal." />
           <Annotation target={{ x: main.virk[3], y: TREE.virkY + 80 }} at={{ x: 540, y: 885 }} start={T.notatBedrift}
-            text="Internt kalt «en bedrift». Upresist, men praktisk." color={colors.accent} />
+            text="Det er i virksomhetene alle folka jobber." color={colors.accent} />
         </g>
 
         {/* Skogen: tusenvis av bedrifter, som samles i registeret */}

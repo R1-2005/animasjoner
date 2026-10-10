@@ -100,7 +100,7 @@ export const SyntetiskeData: React.FC = () => {
       titleBlock={[
         { label: "TEGNING", value: "Syntetiske data" },
         { label: "SCENE", value: current.id },
-        { label: "REV", value: "A" },
+        { label: "REV", value: "MED-LOS-ALAMOS-REV-45" },
       ]}
     >
       <Series>

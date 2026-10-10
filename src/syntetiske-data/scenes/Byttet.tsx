@@ -9,7 +9,7 @@ import { type Hold, useLiveTime } from "../../components/Holds";
 import { Sparkles } from "../../components/Sparkles";
 import { Stream } from "../../components/Stream";
 import { Wipe } from "../../components/Wipe";
-import { ramp } from "../../style/anim";
+import { ramp, typewriter } from "../../style/anim";
 import { theme } from "../../style/theme";
 import { ENGINE, ENGINE_RIGHT, GOLD_SPARKLES, REGISTER, REGISTER_LEVEL, REGISTER_RIGHT, req, res, SOURCE_Y, SRC } from "../layout";
 
@@ -31,6 +31,7 @@ const T = {
   flyt: 380,
   nyeData: 400,
   notat: 430,
+  lurt: 478, // etter pausen: Gremlin godkjenner dataene som ekte
   ryddOpp: 525,
 };
 
@@ -38,7 +39,7 @@ const T = {
 export const BYTTET_HOLDS: Hold[] = [
   { at: 250, frames: 5 * 30 },
   { at: 470, frames: 5 * 30 },
-  { at: 520, frames: 5 * 30 },
+  { at: 520, frames: 11 * 30 }, // selve essensen: presentatøren trenger tid her
 ];
 
 const SOURCES = [
@@ -94,6 +95,9 @@ export const Byttet: React.FC = () => {
             </text>
             <Gear cx={910} cy={480} r={72} teeth={12} angle={live * (0.5 + busy * 1.5)} />
             <Gear cx={1005} cy={438} r={44} teeth={7} angle={-live * (0.5 + busy * 1.5) * (12 / 7) + 12} color={colors.gridMinor} />
+            <text x={792} y={650} fontFamily={fonts.mono} fontSize={22} fontWeight={600} fill={colors.success}>
+              {typewriter("dataene ser ekte ut ✓", ramp(frame, T.lurt, 25, (t) => t))}
+            </text>
           </Box>
 
           {/* «Gullet» renses: personopplysningene løftes ut og strykes */}
@@ -211,6 +215,8 @@ export const Byttet: React.FC = () => {
           </g>
           <Annotation target={{ x: 1300, y: SOURCE_Y.folkeregisteret + 14 }} at={{ x: 1190, y: 860 }} start={T.notat}
             text="Klager aldri på datalekasjer." color={colors.synthetic} instant />
+          <Annotation target={{ x: 800, y: 660 }} at={{ x: 140, y: 900 }} start={T.lurt + 12}
+            text="Vi lurer Gremlin til å tro at dataene er ekte." instant />
         </Wipe>
       </svg>
     </AbsoluteFill>
