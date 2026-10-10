@@ -1,5 +1,6 @@
 import { Composition } from "remotion";
 import { SYNTETISKE_DATA_FRAMES, SyntetiskeData } from "./syntetiske-data/SyntetiskeData";
+import { TEKNOLOGITIMEN_FRAMES, Teknologitimen } from "./teknologitimen/Teknologitimen";
 import { TestAnimasjon, testAnimasjonSchema } from "./TestAnimasjon";
 
 export const RemotionRoot: React.FC = () => {
@@ -22,6 +23,14 @@ export const RemotionRoot: React.FC = () => {
         id="SyntetiskeData"
         component={SyntetiskeData}
         durationInFrames={SYNTETISKE_DATA_FRAMES}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="Teknologitimen"
+        component={Teknologitimen}
+        durationInFrames={TEKNOLOGITIMEN_FRAMES}
         fps={30}
         width={1920}
         height={1080}
