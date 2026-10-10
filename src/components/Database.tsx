@@ -10,11 +10,13 @@ type Props = {
   start: number;
   // Fyllingsgrad 0-1, styres av scenen.
   level: number;
+  // 0 = blå væske, 1 = gull («gullet»). Mellomverdier: gullet stiger fra bunnen og fortrenger det blå.
+  gold?: number;
   children?: React.ReactNode;
 };
 
 // Klassisk database-sylinder med "væske" som viser hvor mye som er lagret.
-export const Database: React.FC<Props> = ({ cx, top, w, h, start, level, children }) => {
+export const Database: React.FC<Props> = ({ cx, top, w, h, start, level, gold = 0, children }) => {
   const frame = useCurrentFrame();
   const appear = ramp(frame, start, 30);
   const rx = w / 2;
@@ -35,7 +37,15 @@ export const Database: React.FC<Props> = ({ cx, top, w, h, start, level, childre
       <path d={`${body} A ${rx} ${ry} 0 0 0 ${left} ${top} Z`} fill={colors.paper} />
       <g clipPath={`url(#db-clip-${cx}-${top})`}>
         <rect x={left} y={fillTop} width={w} height={bottom + ry - fillTop} fill={colors.accent} opacity={0.18} />
-        <ellipse cx={cx} cy={fillTop} rx={rx} ry={ry} fill={colors.accent} opacity={0.25} />
+        {gold > 0 ? (
+          <rect x={left} y={bottom + ry - gold * (bottom + ry - fillTop)} width={w} height={gold * (bottom + ry - fillTop)}
+            fill={colors.goldFill} opacity={0.92} />
+        ) : null}
+        {gold >= 1 ? (
+          <ellipse cx={cx} cy={fillTop} rx={rx} ry={ry} fill={colors.goldLight} stroke={colors.gold} strokeWidth={stroke.thin} />
+        ) : (
+          <ellipse cx={cx} cy={fillTop} rx={rx} ry={ry} fill={colors.accent} opacity={0.25} />
+        )}
       </g>
       <path d={body} fill="none" stroke={colors.ink} strokeWidth={stroke.normal} />
       <ellipse cx={cx} cy={top} rx={rx} ry={ry} fill={colors.paper} stroke={colors.ink} strokeWidth={stroke.normal} />

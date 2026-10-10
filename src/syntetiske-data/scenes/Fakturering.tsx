@@ -8,13 +8,15 @@ import { Gear } from "../../components/Gear";
 import { Header } from "../../components/Header";
 import type { Hold } from "../../components/Holds";
 import { Packet } from "../../components/Packet";
+import { Sparkles } from "../../components/Sparkles";
 import { Step } from "../../components/Step";
 import { Stream } from "../../components/Stream";
+import { Wipe } from "../../components/Wipe";
 import { ramp, typewriter } from "../../style/anim";
 import { theme } from "../../style/theme";
-import { ENGINE, formatNumber, REGISTER, REGISTER_RIGHT, req, res, SOURCE_Y, SRC } from "../layout";
+import { ENGINE, GOLD_SPARKLES, REGISTER_LEVEL, formatNumber, REGISTER, REGISTER_RIGHT, req, res, SOURCE_Y, SRC } from "../layout";
 
-export const FAKTURERING_FRAMES = 660;
+export const FAKTURERING_FRAMES = 842;
 
 // Tidslinje for scenen (lokale frames).
 const T = {
@@ -29,8 +31,18 @@ const T = {
   steg4: 260,
   steg5: 300,
   steg6: 330,
-  flytSlutt: 560,
-  notatBetaling: 585,
+  flytSlutt: 710, // ~20 s flyt, så publikum rekker å ta inn prosessen
+  notatBetaling: 735,
+  ryddOpp: 815, // etter sluttpausen: arket viskes ut, bare «gullet» blir stående
+};
+
+// Nedtrapping i samme rekkefølge som oppstarten: registeret slutter å pumpe først,
+// så stopper arbeidsforholdene, og til slutt Skatteetaten og Folkeregisteret.
+const STOPP = {
+  register: T.flytSlutt - 120,
+  nav: T.flytSlutt - 65,
+  skatteetaten: T.flytSlutt - 10,
+  folkeregisteret: T.flytSlutt,
 };
 
 // Fakturabunken: antall dokumenter når flyten er ferdig.
@@ -39,7 +51,7 @@ const PILE = 14;
 // Pauser: når alle aktørene er tegnet, og på sluttbildet.
 export const FAKTURERING_HOLDS: Hold[] = [
   { at: 105, frames: 5 * 30 },
-  { at: 650, frames: 10 * 30 },
+  { at: 800, frames: 10 * 30 },
 ];
 
 const SOURCES = [
@@ -66,11 +78,11 @@ export const Fakturering: React.FC = () => {
   const { colors, fonts, stroke } = theme;
   const angle = gearAngle(frame);
 
-  const persons = interpolate(frame, [T.steg2 + 20, T.flytSlutt - 30], [0, 1000000], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.inOut(Easing.quad),
-  });
+  // Tellerne går i samme tempo og stopper når strømmen deres stopper.
+  const count = (start: number, end: number, to: number) =>
+    interpolate(frame, [start, end], [0, to], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.quad) });
+  const virksomheter = count(T.steg1 + 40, STOPP.register, 17000);
+  const persons = count(T.steg2 + 20, STOPP.nav, 1000000);
   const calc = ramp(frame, T.steg4 + 10, 40, (t) => t);
   // Bunken vokser jevnt mens flyten går.
   const docs = Math.floor(interpolate(frame, [T.steg6, T.flytSlutt], [1, PILE + 0.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
@@ -90,14 +102,18 @@ export const Fakturering: React.FC = () => {
   return (
     <AbsoluteFill>
       <svg width="100%" height="100%" viewBox="0 0 1920 1080">
-        <Header title="Fakturering" subtitle="Hvert kvartal: fra register til faktura" />
+        
 
         {/* Registeret står igjen fra forrige scene */}
-        <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={-30} level={0.6} />
+        <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={-30} level={REGISTER_LEVEL} gold={1} />
+        <Sparkles points={GOLD_SPARKLES.slice(0, 3)} start={0} period={90} />
         <text x={REGISTER.cx} y={REGISTER.top + REGISTER.h + 90} textAnchor="middle" fontFamily={fonts.sans} fontSize={32}
           fontWeight={700} fill={colors.ink}>
           Tilslutningsregisteret
         </text>
+
+        <Wipe start={T.ryddOpp} id="wipe-fakturering">
+        <Header title="Fakturering" subtitle="Hvert kvartal: fra register til faktura" start={-20} />
 
         {/* Gremlin: selve faktureringen */}
         <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[GREMLIN]">
@@ -145,10 +161,10 @@ export const Fakturering: React.FC = () => {
 
         {/* Data på vei */}
         <Packet {...REG_LINE} start={T.steg1 + 5} duration={35} label="17 000 virksomheter" />
-        <Stream {...REG_LINE} start={T.steg1 + 40} duration={T.flytSlutt - T.steg1 - 40} count={40} color={colors.highlight} />
+        <Stream {...REG_LINE} start={T.steg1 + 40} duration={STOPP.register - T.steg1 - 40} count={32} color={colors.highlight} />
         {SOURCES.map((src, i) => {
           const begin = [T.steg2, T.steg3, T.steg5][i];
-          const length = T.flytSlutt - begin;
+          const length = [STOPP.nav, STOPP.skatteetaten, STOPP.folkeregisteret][i] - begin;
           return (
             <g key={src.name}>
               <Packet {...req(src.cy)} start={begin} duration={22} label="?" />
@@ -172,16 +188,17 @@ export const Fakturering: React.FC = () => {
 
         {/* Påskrifter */}
         <g opacity={volumeNote}>
-          <Annotation target={{ x: 600, y: 920 }} at={{ x: 690, y: 1000 }} start={T.notatVolum}
+          <Annotation target={{ x: 618, y: 922 }} at={{ x: 690, y: 1000 }} start={T.notatVolum}
             text="Over 1 million personer. Alle må med." color={colors.accent} />
         </g>
         <Annotation target={{ x: 1090 + (PILE - 1) * 3, y: 800 }} at={{ x: 1210, y: 870 }} start={T.notatBetaling} text="Betales (som regel)." />
 
         {/* Tellere */}
-        {counterRow(880, "VIRKSOMHETER", "17 000", T.steg1 + 25)}
+        {counterRow(880, "VIRKSOMHETER", formatNumber(virksomheter), T.steg1 + 40)}
         {counterRow(930, "PERSONER", persons >= 1000000 ? "1 000 000+" : formatNumber(persons), T.steg2 + 20)}
         {counterRow(980, "FAKTURERT PER ÅR", "> 10 mrd kr", T.flytSlutt - 20)}
         <line x1={120} x2={700} y1={845} y2={845} stroke={colors.gridMajor} strokeWidth={stroke.thin} opacity={ramp(frame, T.steg1 + 25, 15)} />
+        </Wipe>
       </svg>
     </AbsoluteFill>
   );

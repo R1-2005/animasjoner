@@ -3,6 +3,16 @@
 
 export const REGISTER = { cx: 330, top: 470, w: 320, h: 210 };
 export const REGISTER_RIGHT = REGISTER.cx + REGISTER.w / 2;
+// Fyllingsgrad for «gullet» når registeret er ferdig bygget.
+export const REGISTER_LEVEL = 0.6;
+// Glimt på gulloverflaten (fylt til REGISTER_LEVEL).
+export const GOLD_SPARKLES = [
+  { x: 240, y: 600, size: 26 },
+  { x: 410, y: 572, size: 20 },
+  { x: 315, y: 645, size: 28 },
+  { x: 448, y: 655, size: 18 },
+  { x: 205, y: 668, size: 18 },
+];
 
 export const ENGINE = { x: 760, y: 270, w: 400, h: 430 };
 export const ENGINE_RIGHT = ENGINE.x + ENGINE.w;

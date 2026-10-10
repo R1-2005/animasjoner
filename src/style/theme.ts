@@ -15,6 +15,10 @@ export const theme = {
     accent: "#2F6BFF",
     highlight: "#FF6B35",
     success: "#1F9D6B",
+    // «Gullet»: Tilslutningsregisteret. Mørk gull til tekst/streker, varm gull til fyll.
+    gold: "#B8860B",
+    goldFill: "#E8B931",
+    goldLight: "#F6DC85",
   },
   fonts: {
     sans: inter.fontFamily,

@@ -6,11 +6,13 @@ import { Database } from "../../components/Database";
 import { Header } from "../../components/Header";
 import type { Hold } from "../../components/Holds";
 import { Path } from "../../components/Path";
+import { Sparkles } from "../../components/Sparkles";
+import { Transmutation, TRANSMUTATION_FLASH } from "../../components/Transmutation";
 import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
-import { formatNumber, REGISTER } from "../layout";
+import { formatNumber, GOLD_SPARKLES, REGISTER, REGISTER_LEVEL } from "../layout";
 
-export const FUNDAMENTET_FRAMES = 575;
+export const FUNDAMENTET_FRAMES = 830;
 
 // Tidslinje for scenen (lokale frames).
 const T = {
@@ -31,6 +33,9 @@ const T = {
   samle: 445,
   register: 457,
   poeng: 490,
+  // Det blå registeret vises i 5 s, så forvandles det, og «gullet» vises i 5 s før neste del.
+  forvandling: 490 + 5 * 30, // transmutasjonssirkelen tegnes; glimtet kommer TRANSMUTATION_FLASH senere
+  gullTekst: 490 + 5 * 30 + TRANSMUTATION_FLASH + 22,
 };
 
 // Pauser for foredragsholderen: på det ferdige treet, og på skogen med telleren.
@@ -139,7 +144,7 @@ export const Fundamentet: React.FC = () => {
   return (
     <AbsoluteFill>
       <svg width="100%" height="100%" viewBox="0 0 1920 1080">
-        <Header title="Fundamentet" subtitle="Tilslutningsregisteret — vårt eget register over bedriftene i AFP-ordningen" end={FUNDAMENTET_FRAMES - 15} />
+        <Header title="Fundamentet" subtitle="Tilslutningsregisteret — vårt eget register over bedriftene i AFP-ordningen" start={-20} end={FUNDAMENTET_FRAMES - 15} />
 
         {/* Kilde: Enhetsregisteret */}
         <g opacity={tidy}>
@@ -213,12 +218,19 @@ export const Fundamentet: React.FC = () => {
         </g>
 
         {/* Registeret: kilden til alt videre */}
-        <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={T.register} level={0.6} />
+        {/* Registeret fylles mens bedriftene kommer inn, og forvandles så til «gullet» (alkymi) */}
+        <Transmutation cx={REGISTER.cx} cy={REGISTER.top + 105} r={235} start={T.forvandling} layer="back" />
+        <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={T.register}
+          level={interpolate(frame, [T.register, T.register + 50], [0.04, REGISTER_LEVEL], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) })}
+          gold={ramp(frame, T.forvandling + TRANSMUTATION_FLASH + 2, 6)} />
+        <Sparkles points={GOLD_SPARKLES} start={T.forvandling + TRANSMUTATION_FLASH + 25} period={36} />
         <text x={REGISTER.cx} y={REGISTER.top + REGISTER.h + 90} textAnchor="middle" fontFamily={fonts.sans} fontSize={32}
-          fontWeight={700} fill={colors.ink} opacity={ramp(frame, T.register + 15, 15)}>
+          fontWeight={700} fill={colors.ink} stroke={colors.paper} strokeWidth={8} paintOrder="stroke"
+          opacity={ramp(frame, T.register + 15, 15)}>
           Tilslutningsregisteret
         </text>
-        <g opacity={ramp(frame, T.poeng, 20) * (1 - ramp(frame, FUNDAMENTET_FRAMES - 15, 15))} transform={`translate(${(1 - ramp(frame, T.poeng, 20)) * 20} 0)`}>
+        {/* Først: et vanlig register. Etter forvandlingen: «gullet». */}
+        <g opacity={ramp(frame, T.poeng, 20) * (1 - ramp(frame, T.gullTekst, 15))} transform={`translate(${(1 - ramp(frame, T.poeng, 20)) * 20} 0)`}>
           <text x={640} y={560} fontFamily={fonts.sans} fontSize={56} fontWeight={800} fill={colors.ink}>
             Vårt eget register.
           </text>
@@ -226,6 +238,19 @@ export const Fundamentet: React.FC = () => {
             Kilden til alt som skjer videre.
           </text>
         </g>
+        <g opacity={ramp(frame, T.gullTekst, 20) * (1 - ramp(frame, FUNDAMENTET_FRAMES - 15, 15))}
+          transform={`translate(${(1 - ramp(frame, T.gullTekst, 20)) * 20} 0)`}>
+          <text x={640} y={530} fontFamily={fonts.sans} fontSize={56} fontWeight={800} fill={colors.ink}>
+            Vårt eget register.
+          </text>
+          <text x={640} y={605} fontFamily={fonts.sans} fontSize={46} fontWeight={400} fill={colors.inkSoft}>
+            <tspan fontWeight={800} fill={colors.gold}>«Gullet»</tspan> — her bygger vi verdiene.
+          </text>
+          <text x={640} y={665} fontFamily={fonts.sans} fontSize={36} fontWeight={400} fill={colors.inkSoft}>
+            Kilden til alt som skjer videre.
+          </text>
+        </g>
+        <Transmutation cx={REGISTER.cx} cy={REGISTER.top + 105} r={235} start={T.forvandling} layer="front" />
       </svg>
     </AbsoluteFill>
   );

@@ -7,10 +7,11 @@ import { Gear } from "../../components/Gear";
 import { Header } from "../../components/Header";
 import type { Hold } from "../../components/Holds";
 import { Packet } from "../../components/Packet";
+import { Sparkles } from "../../components/Sparkles";
 import { Step } from "../../components/Step";
 import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
-import { ENGINE, REGISTER, REGISTER_RIGHT, req, res, SOURCE_Y, SRC } from "../layout";
+import { ENGINE, GOLD_SPARKLES, REGISTER_LEVEL, REGISTER, REGISTER_RIGHT, req, res, SOURCE_Y, SRC } from "../layout";
 
 export const AFP_FRAMES = 880;
 
@@ -117,7 +118,7 @@ export const AfpSoknad: React.FC = () => {
   return (
     <AbsoluteFill>
       <svg width="100%" height="100%" viewBox="0 0 1920 1080">
-        <Header title="AFP-søknad" subtitle="Én person søker avtalefestet pensjon" />
+        <Header title="AFP-søknad" subtitle="Én person søker avtalefestet pensjon" start={-20} />
 
         {/* Søkeren */}
         <Box x={120} y={240} w={540} h={170} start={T.kort} tag="[SØKER]">
@@ -130,7 +131,8 @@ export const AfpSoknad: React.FC = () => {
         {cardRow(386, "Eksempelbedriften AS · Bergen", T.arbeid + 50)}
 
         {/* Registeret */}
-        <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={-30} level={0.6} />
+        <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={-30} level={REGISTER_LEVEL} gold={1} />
+        <Sparkles points={GOLD_SPARKLES.slice(0, 3)} start={0} period={90} />
         <text x={REGISTER.cx} y={REGISTER.top + REGISTER.h + 90} textAnchor="middle" fontFamily={fonts.sans} fontSize={32}
           fontWeight={700} fill={colors.ink}>
           Tilslutningsregisteret
