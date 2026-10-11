@@ -3,6 +3,7 @@ import type { Moment, ScrewState, SignEvent, TileState } from "./events";
 import { Correction, DRAW_END, ERASE_FRAMES } from "./Correction";
 import { fall, gJoke, straighten } from "./events";
 import { lightning } from "./Lightning";
+import { OVERKILL_DROP_FRAMES, OVERKILL_INSTALL_FRAMES, overkillScrews } from "./Overkill";
 import { RescuerView } from "./Rescuers";
 import type { Tile } from "./sign";
 import { afp, FLOOR, SCREW_SIZE, TILES } from "./sign";
@@ -65,6 +66,13 @@ const last = TIMELINE[TIMELINE.length - 1];
 // Til slutt visker hånden ut N-en, og loopen starter på nytt i det den er borte.
 const ERASE_AT = last.start + last.duration + 60;
 export const TEKNOLOGITIMEN_FRAMES = ERASE_AT + ERASE_FRAMES;
+
+// Overkill-patchen på o-en (tile 3): seks ekstra skruer når kranen har heist den på plass,
+// som så løsner én og én utover loopen og er ute av bildet før den starter på nytt.
+const CRANE_O = TIMELINE.find((e) => e.tile === 3)!;
+const OVERKILL_AT = CRANE_O.start + CRANE_O.duration - 60;
+const OVERKILL_DROP_FROM = OVERKILL_AT + OVERKILL_INSTALL_FRAMES + 450;
+const OVERKILL_DROP_TO = TEKNOLOGITIMEN_FRAMES - OVERKILL_DROP_FRAMES - 10;
 
 const homeState = (tile: Tile): TileState => ({
   pose: tile.home,
@@ -235,6 +243,19 @@ export const Teknologitimen: React.FC = () => {
       </div>
       {order.map((i) => (
         <TileView key={i} tile={TILES[i]} state={states[i]} />
+      ))}
+      {overkillScrews(frame, OVERKILL_AT, OVERKILL_DROP_FROM, OVERKILL_DROP_TO).map((s, i) => (
+        <div
+          key={`overkill${i}`}
+          style={{
+            ...screwFace,
+            left: s.x - SCREW_SIZE / 2,
+            top: s.y - SCREW_SIZE / 2,
+            transform: `rotate(${s.rot}deg) scale(${s.scale})`,
+          }}
+        >
+          <Slot angle={s.slot} />
+        </div>
       ))}
       {states.flatMap((st, i) =>
         st.screws.map((s, k) => (s.loose ? <LooseScrew key={`${i}-${k}`} s={s} slot={TILES[i].screws[k].slot} /> : null)),
