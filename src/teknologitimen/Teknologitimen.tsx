@@ -13,7 +13,7 @@ import { afp, FLOOR, SCREW_SIZE, TILES } from "./sign";
 // g-spøken åpner, fordi den er ferdig før hånden tegner inn N-en etter 15 sekunder.
 const SCRIPT: SignEvent[] = [
   gJoke(6, { x: 2150, y: 600 }, { x: 64, y: 40 }),
-  fall({ tile: 0, rescuer: "arm", base: { x: -180, y: 1180 }, entry: { x: -700, y: 900 }, land: { dx: 150, rot: -6 } }),
+  fall({ tile: 0, rescuer: "robot", base: { x: -400, y: FLOOR }, entry: { x: -400, y: 760 }, land: { dx: 150, rot: -6 } }),
   fall({ tile: 12, rescuer: "lift", entry: { x: 2250, y: FLOOR }, land: { dx: -30, rot: 5 } }),
   // Den nederste i-en henger bare i én skrue nederst, så den velter rundt og blir et «¡».
   straighten({
@@ -32,9 +32,9 @@ const SCRIPT: SignEvent[] = [
     tile: 5,
     lose: [1],
     pivot: 0,
-    rescuer: "arm",
-    base: { x: 2100, y: 1180 },
-    entry: { x: 2650, y: 900 },
+    rescuer: "robot",
+    base: { x: 2400, y: FLOOR },
+    entry: { x: 2300, y: 600 },
     hold: { x: 50, y: 60 },
   }),
   fall({ tile: 1, rescuer: "drone", entry: { x: 2250, y: 260 }, exit: { x: -350, y: 180 }, land: { dx: -20, rot: 7 } }),

@@ -76,15 +76,3 @@ export const tremble = (t: number, from: number, to: number) => {
   const a = clamp01((t - from) / (to - from)) * (t < to ? 1 : 0);
   return a * 1.1 * Math.sin(t * 2.1);
 };
-
-// To-ledds robotarm: albuens posisjon for en gitt skulder og et mål (albuen alltid «opp»).
-export const elbow = (base: V, target: V, l1: number, l2: number): V => {
-  const dx = target.x - base.x;
-  const dy = target.y - base.y;
-  const d = Math.min(Math.hypot(dx, dy), l1 + l2 - 1);
-  const a = Math.atan2(dy, dx);
-  const alpha = Math.acos(clamp01((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d)));
-  const e1 = { x: base.x + l1 * Math.cos(a - alpha), y: base.y + l1 * Math.sin(a - alpha) };
-  const e2 = { x: base.x + l1 * Math.cos(a + alpha), y: base.y + l1 * Math.sin(a + alpha) };
-  return e1.y < e2.y ? e1 : e2;
-};

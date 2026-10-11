@@ -50,15 +50,18 @@ const svgPts = (pts: V[]) => pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}
 
 // Mellomrommet mellom k (høyre kant x≈737) og o (venstre kant x≈759) i øverste rad.
 const GAP_X = 748;
+const N_SCALE = 0.7;
 const STROKES: V[][] = [
   wobbly(
+    // Den som retter sin egen feil, gjør rettelsen så liten som mulig: 70 % størrelse,
+    // krympet mot bunnen så N-en fortsatt står rett over pilen.
     [
       { x: 692, y: 206 },
       { x: 690, y: 74 },
       { x: 794, y: 204 },
       { x: 800, y: 70 },
-    ],
-    2.2,
+    ].map((p) => ({ x: GAP_X + (p.x - GAP_X) * N_SCALE, y: 210 + (p.y - 210) * N_SCALE })),
+    1.6,
     1,
   ),
   wobbly(

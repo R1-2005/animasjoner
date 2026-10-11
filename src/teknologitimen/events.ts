@@ -24,7 +24,7 @@ export type ScrewState =
 
 export type TileState = { pose: Pose; screws: ScrewState[] };
 
-export type RescuerKind = "hand" | "arm" | "crane" | "drone" | "claw" | "magnet" | "lift";
+export type RescuerKind = "hand" | "robot" | "crane" | "drone" | "claw" | "magnet" | "lift";
 
 export type Rescuer = {
   kind: RescuerKind;
@@ -32,7 +32,7 @@ export type Rescuer = {
   hold: V;
   // 0 = åpen, 1 = har grepet.
   grip: number;
-  // Hånd: et punkt langt utenfor bildet som armen kommer fra. Robotarm: sokkelen.
+  // Hånd: et punkt langt utenfor bildet som armen kommer fra. Robot: hvilken side den kjører inn fra.
   from?: V;
   // Ekstra bevegelse: hånden som trekker på skuldrene, dronen som krenger.
   wiggle?: number;
@@ -103,7 +103,7 @@ type StraightenOpts = {
   tile: number;
   lose: number[];
   pivot: number;
-  rescuer: "hand" | "arm";
+  rescuer: "hand" | "robot";
   entry: V;
   // Hvor på flisen redningsmannen tar tak (lokale koordinater).
   hold: V;
@@ -228,7 +228,7 @@ type FallOpts = {
   wait?: number;
 };
 
-const TOP_HOLD: RescuerKind[] = ["arm", "crane", "drone", "claw", "magnet"];
+const TOP_HOLD: RescuerKind[] = ["robot", "crane", "drone", "claw", "magnet"];
 
 export const fall = (o: FallOpts): SignEvent => {
   const tile = TILES[o.tile];

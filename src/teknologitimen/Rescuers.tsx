@@ -1,6 +1,4 @@
 import type { Rescuer } from "./events";
-import type { V } from "./physics";
-import { elbow } from "./physics";
 import { afp, FLOOR } from "./sign";
 
 const OUTLINE = 4;
@@ -50,49 +48,66 @@ const Hand: React.FC<{ r: Rescuer }> = ({ r }) => {
   );
 };
 
-// Industriell robotarm med to ledd og en griper som alltid peker rett ned.
-const Arm: React.FC<{ r: Rescuer; frame: number }> = ({ r, frame }) => {
-  const base = r.from ?? { x: -180, y: 1180 };
-  const wrist = { x: r.hold.x, y: r.hold.y - 92 };
-  const e = elbow(base, wrist, 640, 640);
-  const seg = (a: V, b: V) => (
-    <>
-      <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={INK} strokeWidth={62} strokeLinecap="round" />
-      <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={afp.yellow} strokeWidth={52} strokeLinecap="round" />
-      <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={afp.white} strokeWidth={8} strokeLinecap="round" opacity={0.5} />
-    </>
-  );
-  const joint = (p: V, r1: number) => (
-    <>
-      <circle cx={p.x} cy={p.y} r={r1} fill={INK} />
-      <circle cx={p.x} cy={p.y} r={r1 * 0.45} fill={afp.metal} />
-    </>
-  );
+// Liten robot på belter som kjører langs gulvet. En teleskopmast med bom rekker opp til flisen,
+// så roboten selv står ved siden av og ikke foran bokstaven.
+const Robot: React.FC<{ r: Rescuer; frame: number }> = ({ r, frame }) => {
+  const side = (r.from?.x ?? 0) < 960 ? -1 : 1;
+  const bx = r.hold.x + side * 140;
+  const top = FLOOR - 112;
+  const boomY = r.hold.y - 92;
+  const mid = (top + boomY) / 2;
+  const spin = (bx / 13) * (180 / Math.PI);
   const open = 1 - r.grip;
   const fx = 22 + 22 * open;
+  // Blunker innimellom.
+  const blink = frame % 110 < 5 ? 0.15 : 1;
   const led = Math.sin(frame * 0.12) > 0 ? afp.coral : afp.metalDark;
   return (
     <g>
-      {seg(base, e)}
-      {seg(e, wrist)}
-      {joint(base, 58)}
-      {joint(e, 42)}
-      <circle cx={e.x + 26} cy={e.y - 26} r={7} fill={led} stroke={INK} strokeWidth={2} />
-      <line x1={wrist.x} y1={wrist.y} x2={wrist.x} y2={r.hold.y - 44} stroke={afp.metalDark} strokeWidth={20} />
-      {joint(wrist, 26)}
-      <rect x={wrist.x - 56} y={r.hold.y - 50} width={112} height={18} rx={6} fill={INK} />
+      {/* Teleskopmast og bom */}
+      <line x1={bx} y1={top} x2={bx} y2={mid} stroke={INK} strokeWidth={30} />
+      <line x1={bx} y1={top} x2={bx} y2={mid} stroke={afp.metal} strokeWidth={22} />
+      <line x1={bx} y1={mid + 6} x2={bx} y2={boomY} stroke={INK} strokeWidth={20} />
+      <line x1={bx} y1={mid + 6} x2={bx} y2={boomY} stroke={afp.metalLight} strokeWidth={12} />
+      <line x1={bx} y1={boomY} x2={r.hold.x} y2={boomY} stroke={INK} strokeWidth={26} strokeLinecap="round" />
+      <line x1={bx} y1={boomY} x2={r.hold.x} y2={boomY} stroke={afp.yellow} strokeWidth={18} strokeLinecap="round" />
+      <circle cx={bx} cy={boomY} r={16} fill={INK} />
+      <circle cx={bx} cy={boomY} r={6} fill={afp.metal} />
+      {/* Griper */}
+      <line x1={r.hold.x} y1={boomY} x2={r.hold.x} y2={r.hold.y - 44} stroke={afp.metalDark} strokeWidth={16} />
+      <circle cx={r.hold.x} cy={boomY} r={13} fill={INK} />
+      <rect x={r.hold.x - 50} y={r.hold.y - 50} width={100} height={16} rx={6} fill={INK} />
       {[-1, 1].map((s) => (
         <rect
           key={s}
-          x={wrist.x + s * fx - 8}
+          x={r.hold.x + s * fx - 8}
           y={r.hold.y - 40}
           width={16}
-          height={64}
+          height={60}
           rx={6}
           fill={afp.metalDark}
           stroke={INK}
           strokeWidth={3}
         />
+      ))}
+      {/* Antenne */}
+      <line x1={bx - side * 44} y1={top} x2={bx - side * 50} y2={top - 40} stroke={INK} strokeWidth={4} />
+      <circle cx={bx - side * 50} cy={top - 44} r={8} fill={led} stroke={INK} strokeWidth={3} />
+      {/* Kropp med skjermansikt */}
+      <rect x={bx - 66} y={top} width={132} height={86} rx={18} fill={afp.yellow} stroke={INK} strokeWidth={OUTLINE} />
+      <rect x={bx - 44} y={top + 16} width={88} height={44} rx={10} fill={INK} />
+      {[-1, 1].map((s) => (
+        <ellipse key={s} cx={bx - side * 6 + s * 18} cy={top + 34} rx={7} ry={9 * blink} fill={afp.mint} />
+      ))}
+      <path d={`M ${bx - side * 6 - 10} ${top + 48} q 10 6 20 0`} fill="none" stroke={afp.mint} strokeWidth={3} strokeLinecap="round" />
+      {/* Belter */}
+      <rect x={bx - 78} y={FLOOR - 32} width={156} height={40} rx={20} fill={INK} />
+      {[-48, 0, 48].map((dx) => (
+        <g key={dx} transform={`translate(${bx + dx} ${FLOOR - 12}) rotate(${spin})`}>
+          <circle r={14} fill={afp.metal} stroke={afp.metalEdge} strokeWidth={2} />
+          <line x1={-10} y1={0} x2={10} y2={0} stroke={afp.slot} strokeWidth={3} />
+          <line x1={0} y1={-10} x2={0} y2={10} stroke={afp.slot} strokeWidth={3} />
+        </g>
       ))}
     </g>
   );
@@ -239,8 +254,8 @@ export const RescuerView: React.FC<{ r: Rescuer; frame: number }> = ({ r, frame 
   switch (r.kind) {
     case "hand":
       return <Hand r={r} />;
-    case "arm":
-      return <Arm r={r} frame={frame} />;
+    case "robot":
+      return <Robot r={r} frame={frame} />;
     case "crane":
       return <Crane r={r} />;
     case "drone":
