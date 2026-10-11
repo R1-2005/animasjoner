@@ -2,6 +2,7 @@ import { AbsoluteFill, Img, staticFile, useCurrentFrame } from "remotion";
 import type { Moment, ScrewState, SignEvent, TileState } from "./events";
 import { Correction, DRAW_END, ERASE_FRAMES } from "./Correction";
 import { fall, gJoke, straighten } from "./events";
+import { lightning } from "./Lightning";
 import { RescuerView } from "./Rescuers";
 import type { Tile } from "./sign";
 import { afp, FLOOR, SCREW_SIZE, TILES } from "./sign";
@@ -40,7 +41,8 @@ const SCRIPT: SignEvent[] = [
   fall({ tile: 1, rescuer: "drone", entry: { x: 2250, y: 260 }, exit: { x: -350, y: 180 }, land: { dx: -20, rot: 7 } }),
   // Hånden kommer oppe fra venstre så ermet ikke dekker N-en.
   straighten({ tile: 2, lose: [1], pivot: 0, rescuer: "hand", entry: { x: 230, y: -320 }, hold: { x: 62, y: -70 } }),
-  fall({ tile: 10, rescuer: "magnet", land: { dx: 0, rot: -4 } }),
+  // Lynet slår ned i m-en, som brenner opp; magnetkranen kommer med en ny fra høyre.
+  lightning(10, { x: 2300, y: 0 }),
   straighten({ tile: 8, lose: [0], pivot: 1, rescuer: "hand", entry: { x: -250, y: 800 }, hold: { x: -60, y: 50 } }),
   fall({ tile: 4, rescuer: "claw", land: { dx: -25, rot: 6 } }),
 ];
@@ -110,6 +112,8 @@ const TileView: React.FC<{ tile: Tile; state: TileState }> = ({ tile, state }) =
         alignItems: "center",
         justifyContent: "center",
         boxShadow: "0 6px 0 rgba(45,44,46,.10), 0 10px 22px rgba(45,44,46,.16)",
+        // Lynet: flisen brenner bort ovenfra.
+        clipPath: state.gone ? `inset(${state.gone * 100}% 0 0 0)` : undefined,
       }}
     >
       <span
@@ -124,6 +128,28 @@ const TileView: React.FC<{ tile: Tile; state: TileState }> = ({ tile, state }) =
       >
         {tile.ch}
       </span>
+      {state.burn ? (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: `radial-gradient(circle at 50% 0%, ${afp.soot} 0%, ${afp.soot} 35%, transparent 100%)`,
+            opacity: state.burn,
+          }}
+        />
+      ) : null}
+      {state.gone && state.gone < 1 ? (
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: state.gone * tile.h,
+            height: 16,
+            background: `linear-gradient(${afp.ember}, transparent)`,
+          }}
+        />
+      ) : null}
       {tile.screws.map((s, i) => {
         const st = state.screws[i];
         if (st.loose) return null;
@@ -206,8 +232,13 @@ export const Teknologitimen: React.FC = () => {
       {states.flatMap((st, i) =>
         st.screws.map((s, k) => (s.loose ? <LooseScrew key={`${i}-${k}`} s={s} slot={TILES[i].screws[k].slot} /> : null)),
       )}
+      {/* Lynglimtet bleker skiltet, men ikke selve lynet. */}
+      {moments.map((m) =>
+        m.flash ? <AbsoluteFill key={`flash${m.tile}`} style={{ background: afp.white, opacity: m.flash }} /> : null,
+      )}
       <svg width={1920} height={1080} viewBox="0 0 1920 1080" style={{ position: "absolute", inset: 0 }}>
         <Correction frame={frame} eraseAt={ERASE_AT} />
+        {moments.map((m) => (m.overlay ? <g key={`fx${m.tile}`}>{m.overlay}</g> : null))}
         {moments.map((m) =>
           m.rescuer ? <RescuerView key={m.tile} r={m.rescuer} frame={frame} /> : null,
         )}

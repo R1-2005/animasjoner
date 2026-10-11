@@ -29,6 +29,13 @@ export const afp = {
   coral: "#dd5c49",
   // Fyldig rød tusj for rettelsen av skrivefeilen.
   marker: "#d7262e",
+  // Lynet som brenner opp m-en.
+  cloud: "#6f6877",
+  cloudDark: "#57505e",
+  flame: "#f39a3c",
+  ember: "#ff6a2b",
+  smoke: "#8d8790",
+  soot: "#2a2226",
   yellow: "#f7cc62",
   teal: "#005b5c",
   mint: "#a6d3ca",

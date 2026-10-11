@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Pose, V } from "./physics";
 import {
   clamp01,
@@ -22,7 +23,13 @@ export type ScrewState =
   | { loose: false; spin: number; scale: number }
   | { loose: true; x: number; y: number; rot: number; scale: number };
 
-export type TileState = { pose: Pose; screws: ScrewState[] };
+export type TileState = {
+  pose: Pose;
+  screws: ScrewState[];
+  // Lynet: hvor svidd flisen er (0-1), og hvor mye som har brent bort ovenfra (0-1).
+  burn?: number;
+  gone?: number;
+};
 
 export type RescuerKind = "hand" | "robot" | "crane" | "drone" | "claw" | "magnet" | "lift";
 
@@ -38,18 +45,25 @@ export type Rescuer = {
   wiggle?: number;
 };
 
-export type Moment = { tile: number; state: TileState; rescuer?: Rescuer };
+export type Moment = {
+  tile: number;
+  state: TileState;
+  rescuer?: Rescuer;
+  // Ekstra SVG over skiltet (sky, lyn, flammer, røyk) og hvitt lynglimt over hele bildet.
+  overlay?: ReactNode;
+  flash?: number;
+};
 
 export type SignEvent = { tile: number; duration: number; at: (t: number) => Moment };
 
-const ATTACHED: ScrewState = { loose: false, spin: 0, scale: 1 };
+export const ATTACHED: ScrewState = { loose: false, spin: 0, scale: 1 };
 
-const UNSCREW = 16; // skruen snurrer ut
-const FLY = 28; // skruen flyr tilbake
-const SPIN_IN = 22; // og skrus inn igjen
+export const UNSCREW = 16; // skruen snurrer ut
+export const FLY = 28; // skruen flyr tilbake
+export const SPIN_IN = 22; // og skrus inn igjen
 
 // Skruer som løsner på `popAt` og kommer tilbake på `flyAt` (undefined = blir sittende).
-const screwState = (
+export const screwState = (
   t: number,
   tile: number,
   i: number,
