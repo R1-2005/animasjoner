@@ -3,6 +3,7 @@ import { Database } from "../../components/Database";
 import { Sparkles } from "../../components/Sparkles";
 import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
+import { SYNTHETIC_DB_LEFT, SyntheticDb } from "../SyntheticDb";
 import { GOLD_SPARKLES, REGISTER, REGISTER_LEVEL } from "../layout";
 
 export const KAPITTEL_FRAMES = 100;
@@ -13,6 +14,8 @@ type Props = {
   subtitle: string;
   // Før «gullet» finnes (del 1) vises kortet uten registeret, med teksten helt til venstre.
   register?: boolean;
+  // Fra del 7: den syntetiske databasen står til venstre i stedet for «gullet».
+  synthetic?: boolean;
 };
 
 // Kapittelkort mellom scenene: «gullet» står igjen, kapittelet presenteres stort i midten,
@@ -20,7 +23,7 @@ type Props = {
 // slik at neste scene fortsetter sømløst.
 const MOVE = 68;
 
-export const Kapittel: React.FC<Props> = ({ n, title, subtitle, register = true }) => {
+export const Kapittel: React.FC<Props> = ({ n, title, subtitle, register = true, synthetic = false }) => {
   const frame = useCurrentFrame();
   const { colors, fonts } = theme;
   const move = ramp(frame, MOVE, 28, Easing.inOut(Easing.cubic));
@@ -30,13 +33,13 @@ export const Kapittel: React.FC<Props> = ({ n, title, subtitle, register = true 
   const titleIn = ramp(frame, 12, 20);
   const subIn = ramp(frame, 26, 18);
   const line = ramp(frame, 8, 26) * (1 - ramp(frame, MOVE - 4, 12));
-  const x0 = register ? 640 : 120;
+  const x0 = register || synthetic ? 640 : 120;
 
   return (
     <AbsoluteFill>
       <svg width="100%" height="100%" viewBox="0 0 1920 1080">
         {/* «Gullet» står fast mellom kapitlene */}
-        {register ? (
+        {synthetic ? <SyntheticDb start={-60} {...SYNTHETIC_DB_LEFT} /> : register ? (
           <>
             <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={-30} level={REGISTER_LEVEL} gold={1} />
             <Sparkles points={GOLD_SPARKLES.slice(0, 3)} start={0} period={90} />

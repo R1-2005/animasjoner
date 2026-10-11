@@ -10,11 +10,12 @@ import { type Hold, useLiveTime } from "../../components/Holds";
 import { Sparkles } from "../../components/Sparkles";
 import { Stream } from "../../components/Stream";
 import { Wipe } from "../../components/Wipe";
+import { SYNTHETIC_DB, SYNTHETIC_DB_LEFT, SYNTHETIC_SOURCES, SyntheticDb } from "../SyntheticDb";
 import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
-import { ENGINE, GOLD_SPARKLES, REGISTER, REGISTER_LEVEL, REGISTER_RIGHT, formatNumber, req, res, SOURCE_Y, SRC } from "../layout";
+import { ENGINE, GOLD_SPARKLES, REGISTER, REGISTER_LEVEL, REGISTER_RIGHT, formatNumber, req, res, SRC } from "../layout";
 
-export const LIVSLOP_FRAMES = 730;
+export const LIVSLOP_FRAMES = 775;
 
 // Tidslinje for scenen (lokale frames).
 const T = {
@@ -29,6 +30,7 @@ const T = {
   vokser: 620, // «Dataene vokser mens vi jobber.»
   notat: 645,
   ryddOpp: 700,
+  glid: 722, // den syntetiske databasen glir til venstre før oppsummeringen
 };
 
 // Pauser: på de tre kildene, på det tomme arkivet, og på sluttbildet (tidsforløpet fortsetter).
@@ -38,13 +40,9 @@ export const LIVSLOP_HOLDS: Hold[] = [
   { at: 680, frames: 10 * 30 },
 ];
 
-const SOURCES = [
-  { name: "Nav", cy: SOURCE_Y.nav },
-  { name: "Skatteetaten", cy: SOURCE_Y.skatteetaten },
-  { name: "Folkeregisteret", cy: SOURCE_Y.folkeregisteret },
-];
+const SOURCES = SYNTHETIC_SOURCES;
 const REG_LINE = { from: { x: REGISTER_RIGHT, y: 575 }, to: { x: ENGINE.x, y: 575 } };
-const CONTAINER = { x: 1410, y: 225, w: 430, h: 500 };
+const CONTAINER = SYNTHETIC_DB;
 const SIM = { x: 1440, y: 790, w: 360, h: 110 };
 const ARKIV = { x: 580, y: 750, w: 780, h: 258 };
 
@@ -90,6 +88,7 @@ export const Livslop: React.FC = () => {
   const caption2 = ramp(frame, T.dag1, 20) * (1 - ramp(frame, T.tidsrom - 10, 12));
   const counter = ramp(frame, T.tidsrom, 15);
   const caption4 = ramp(frame, T.vokser, 20);
+  const glide = ramp(frame, T.glid, 40, Easing.inOut(Easing.cubic));
 
   const chip = (cx: number, y: number, label: string, k: number, opacity: number) => {
     const w = label.length * 13 + 36;
@@ -124,15 +123,18 @@ export const Livslop: React.FC = () => {
   return (
     <AbsoluteFill>
       <svg width="100%" height="100%" viewBox="0 0 1920 1080">
-        {/* «Gullet» står igjen fra forrige scene */}
-        <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={-30} level={REGISTER_LEVEL} gold={1} />
-        <Sparkles points={GOLD_SPARKLES.slice(0, 3)} start={0} period={90} />
-        <text x={REGISTER.cx} y={REGISTER.top + REGISTER.h + 90} textAnchor="middle" fontFamily={fonts.sans} fontSize={32}
-          fontWeight={700} fill={colors.ink}>
-          Tilslutningsregisteret
-        </text>
+        {/* Den syntetiske databasen blir stående, og glir til venstre der den står i oppsummeringen */}
+        <SyntheticDb start={T.kilder} dx={SYNTHETIC_DB_LEFT.dx * glide} dy={SYNTHETIC_DB_LEFT.dy * glide} />
 
         <Wipe start={T.ryddOpp} id="wipe-livslop">
+            {/* «Gullet» står igjen fra forrige scene, men ryddes bort til slutt */}
+            <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={-30} level={REGISTER_LEVEL} gold={1} />
+            <Sparkles points={GOLD_SPARKLES.slice(0, 3)} start={0} period={90} />
+            <text x={REGISTER.cx} y={REGISTER.top + REGISTER.h + 90} textAnchor="middle" fontFamily={fonts.sans} fontSize={32}
+              fontWeight={700} fill={colors.ink}>
+              Tilslutningsregisteret
+            </text>
+
           <Header title="Et levende testmiljø" subtitle="Fra tom database til syntetisk hverdag" start={-20} />
 
           <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[GREMLIN · TESTMILJØ]">
@@ -146,27 +148,6 @@ export const Livslop: React.FC = () => {
               {`kvartal ${quarter} fakturert ✓`}
             </text>
           </Box>
-
-          {/* Vår syntetiske database: etterligner de tre store kildene til personopplysninger */}
-          <g opacity={ramp(frame, T.kilder, 15)}>
-            <rect x={CONTAINER.x} y={CONTAINER.y} width={CONTAINER.w} height={CONTAINER.h} rx={16} fill={colors.paper}
-              stroke={colors.synthetic} strokeWidth={3} strokeDasharray="12 7" />
-            <text x={CONTAINER.x + 22} y={CONTAINER.y + 30} fontFamily={fonts.mono} fontSize={18} fontWeight={600} fill={colors.synthetic}>
-              [SYNTETISK DATABASE]
-            </text>
-          </g>
-          {SOURCES.map((s, i) => (
-            <Box key={s.name} x={SRC.x} y={s.cy - SRC.h / 2} w={SRC.w} h={SRC.h} start={T.kilder + 5 + i * 8}>
-              <text x={SRC.x + SRC.w / 2} y={s.cy + 2} textAnchor="middle" fontFamily={fonts.sans} fontSize={30} fontWeight={700}
-                fill={colors.ink}>
-                {s.name}
-              </text>
-              <text x={SRC.x + SRC.w / 2} y={s.cy + 32} textAnchor="middle" fontFamily={fonts.mono} fontSize={17} fontWeight={600}
-                fill={colors.synthetic}>
-                mock API · syntetisk
-              </text>
-            </Box>
-          ))}
 
           {/* Linjer og flyt */}
           <Connector {...REG_LINE} start={T.linjer} />

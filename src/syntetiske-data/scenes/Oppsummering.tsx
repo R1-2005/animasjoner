@@ -1,11 +1,9 @@
 import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { Database } from "../../components/Database";
 import { Header } from "../../components/Header";
 import type { Hold } from "../../components/Holds";
-import { Sparkles } from "../../components/Sparkles";
 import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
-import { GOLD_SPARKLES, REGISTER, REGISTER_LEVEL } from "../layout";
+import { SYNTHETIC_DB_LEFT, SyntheticDb } from "../SyntheticDb";
 
 export const OPPSUMMERING_FRAMES = 350;
 
@@ -82,13 +80,8 @@ export const Oppsummering: React.FC = () => {
   return (
     <AbsoluteFill>
       <svg width="100%" height="100%" viewBox="0 0 1920 1080">
-        {/* «Gullet» står igjen */}
-        <Database cx={REGISTER.cx} top={REGISTER.top} w={REGISTER.w} h={REGISTER.h} start={-30} level={REGISTER_LEVEL} gold={1} />
-        <Sparkles points={GOLD_SPARKLES} start={0} period={60} />
-        <text x={REGISTER.cx} y={REGISTER.top + REGISTER.h + 90} textAnchor="middle" fontFamily={fonts.sans} fontSize={32}
-          fontWeight={700} fill={colors.ink}>
-          Tilslutningsregisteret
-        </text>
+        {/* Den syntetiske databasen står igjen fra del 6 */}
+        <SyntheticDb start={-60} {...SYNTHETIC_DB_LEFT} />
 
         <Header title="Oppsummering" subtitle="Dette har vi oppnådd med syntetiske data" start={-20} />
 

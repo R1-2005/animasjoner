@@ -18,7 +18,7 @@ const KapittelFundamentet = () => (
 const KapittelFakturering = () => <Kapittel n={2} title="Fakturering" subtitle="Hvert kvartal: fra register til faktura" />;
 const KapittelAfp = () => <Kapittel n={3} title="Søknadsbehandling" subtitle="Én person søker avtalefestet pensjon" />;
 const KapittelProblemet = () => <Kapittel n={4} title="Problemet" subtitle="Alle disse dataene handler om ekte mennesker" />;
-const KapittelOppsummering = () => <Kapittel n={7} title="Oppsummering" subtitle="Dette har vi oppnådd med syntetiske data" />;
+const KapittelOppsummering = () => <Kapittel n={7} title="Oppsummering" subtitle="Dette har vi oppnådd med syntetiske data" synthetic />;
 const KapittelByttet = () => <Kapittel n={5} title="Erstatningen" subtitle="Samme Gremlin. Nye kilder." />;
 const KapittelLivslop = () => <Kapittel n={6} title="Et levende testmiljø" subtitle="Fra tom database til syntetisk hverdag" />;
 
