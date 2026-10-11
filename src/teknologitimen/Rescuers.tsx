@@ -1,5 +1,6 @@
 import type { Rescuer } from "./events";
 import { afp, FLOOR } from "./sign";
+import { Watch } from "./Watch";
 
 const OUTLINE = 4;
 const INK = afp.ink;
@@ -44,6 +45,7 @@ const Hand: React.FC<{ r: Rescuer }> = ({ r }) => {
         <line key={x} x1={x} y1={34} x2={x} y2={58} stroke={INK} strokeWidth={3} strokeLinecap="round" />
       ))}
       <rect x={-46} y={68} width={92} height={26} rx={9} fill={afp.white} stroke={INK} strokeWidth={OUTLINE} />
+      <Watch x={0} y={116} variant={r.watch ?? 0} />
     </g>
   );
 };

@@ -43,6 +43,8 @@ export type Rescuer = {
   from?: V;
   // Ekstra bevegelse: hånden som trekker på skuldrene, dronen som krenger.
   wiggle?: number;
+  // Hvilken klokke hanska har på seg (se Watch.tsx).
+  watch?: number;
 };
 
 export type Moment = {
@@ -126,6 +128,7 @@ type StraightenOpts = {
   omega?: number;
   damping?: number;
   base?: V;
+  watch?: number;
 };
 
 export const straighten = (o: StraightenOpts): SignEvent => {
@@ -173,7 +176,7 @@ export const straighten = (o: StraightenOpts): SignEvent => {
               ? toWorld(pose(t), o.hold)
               : lerpV(homePoint, o.entry, phase(t, release + 4, gone));
         const grip = phase(t, T.grab - 8, T.grab + 4) - phase(t, release - 6, release + 6);
-        rescuer = { kind: o.rescuer, hold, grip, from };
+        rescuer = { kind: o.rescuer, hold, grip, from, watch: o.watch };
       }
       return { tile: o.tile, state, rescuer };
     },
@@ -182,7 +185,7 @@ export const straighten = (o: StraightenOpts): SignEvent => {
 
 // ---------------------------------------------------------------------------------------------
 // «g»-en: henger allerede skjevt i designet. En hånd retter den opp, slipper, og den svinger tilbake.
-export const gJoke = (tileIndex: number, entry: V, holdAt: V): SignEvent => {
+export const gJoke = (tileIndex: number, entry: V, holdAt: V, watch: number): SignEvent => {
   const tile = TILES[tileIndex];
   const { home } = tile;
   const p = tile.screws[0].at;
@@ -219,7 +222,7 @@ export const gJoke = (tileIndex: number, entry: V, holdAt: V): SignEvent => {
         // Skuldertrekk: hånden vipper fram og tilbake et par ganger.
         const s = clamp01((t - T.shrug) / (T.shrugEnd - T.shrug));
         const wiggle = t > T.shrug && t < T.shrugEnd ? Math.sin(s * Math.PI * 4) * 14 * Math.sin(s * Math.PI) : 0;
-        rescuer = { kind: "hand", hold, grip, from, wiggle };
+        rescuer = { kind: "hand", hold, grip, from, wiggle, watch };
       }
       return { tile: tileIndex, state, rescuer };
     },

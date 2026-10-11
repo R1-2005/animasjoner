@@ -36,6 +36,9 @@ export const afp = {
   ember: "#ff6a2b",
   smoke: "#8d8790",
   soot: "#2a2226",
+  // Påskeegget: klokkene til IT-arkitekten.
+  watchBlue: "#1f4e8c",
+  leather: "#7a4a2a",
   yellow: "#f7cc62",
   teal: "#005b5c",
   mint: "#a6d3ca",

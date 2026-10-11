@@ -13,7 +13,7 @@ import { afp, FLOOR, SCREW_SIZE, TILES } from "./sign";
 // Indekser i TILES: 0 T, 1 e, 2 k, 3 o, 4 l, 5 o, 6 g, 7 i | 8 t, 9 i, 10 m, 11 e, 12 n.
 // g-spøken åpner, fordi den er ferdig før hånden tegner inn N-en etter 15 sekunder.
 const SCRIPT: SignEvent[] = [
-  gJoke(6, { x: 2150, y: 600 }, { x: 64, y: 40 }),
+  gJoke(6, { x: 2150, y: 600 }, { x: 64, y: 40 }, 0),
   fall({ tile: 0, rescuer: "robot", base: { x: -400, y: FLOOR }, entry: { x: -400, y: 760 }, land: { dx: 150, rot: -6 } }),
   fall({ tile: 12, rescuer: "lift", entry: { x: 2250, y: FLOOR }, land: { dx: -30, rot: 5 } }),
   // Den nederste i-en henger bare i én skrue nederst, så den velter rundt og blir et «¡».
@@ -27,6 +27,7 @@ const SCRIPT: SignEvent[] = [
     rest: 1,
     omega: 0.1,
     damping: 0.09,
+    watch: 2,
   }),
   fall({ tile: 3, rescuer: "crane", land: { dx: 20, rot: 6 } }),
   straighten({
@@ -40,10 +41,10 @@ const SCRIPT: SignEvent[] = [
   }),
   fall({ tile: 1, rescuer: "drone", entry: { x: 2250, y: 260 }, exit: { x: -350, y: 180 }, land: { dx: -20, rot: 7 } }),
   // Hånden kommer oppe fra venstre så ermet ikke dekker N-en.
-  straighten({ tile: 2, lose: [1], pivot: 0, rescuer: "hand", entry: { x: 230, y: -320 }, hold: { x: 62, y: -70 } }),
+  straighten({ tile: 2, lose: [1], pivot: 0, rescuer: "hand", entry: { x: 230, y: -320 }, hold: { x: 62, y: -70 }, watch: 3 }),
   // Lynet slår ned i m-en, som brenner opp; magnetkranen kommer med en ny fra høyre.
   lightning(10, { x: 2300, y: 0 }),
-  straighten({ tile: 8, lose: [0], pivot: 1, rescuer: "hand", entry: { x: -250, y: 800 }, hold: { x: -60, y: 50 } }),
+  straighten({ tile: 8, lose: [0], pivot: 1, rescuer: "hand", entry: { x: -250, y: 800 }, hold: { x: -60, y: 50 }, watch: 4 }),
   fall({ tile: 4, rescuer: "claw", land: { dx: -25, rot: 6 } }),
 ];
 
@@ -197,7 +198,13 @@ export const Teknologitimen: React.FC = () => {
   const turn = (360 * frame) / TEKNOLOGITIMEN_FRAMES;
 
   return (
-    <AbsoluteFill style={{ background: `linear-gradient(180deg, ${afp.bgTop}, ${afp.bgBottom})`, overflow: "hidden" }}>
+    <AbsoluteFill
+      style={{
+        background: `linear-gradient(180deg, ${afp.bgTop}, ${afp.bgBottom})`,
+        overflow: "hidden",
+        translate: "-3px 0px"
+      }}
+    >
       <Img
         src={staticFile("teknologitimen/gear-purple.png")}
         style={{ position: "absolute", left: 1340, top: -160, width: 760, opacity: 0.06, transform: `rotate(${turn}deg)` }}

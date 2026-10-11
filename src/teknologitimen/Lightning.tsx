@@ -1,5 +1,5 @@
 import type { Pose, V } from "./physics";
-import { clamp01, easeOut, lerp, phase, toWorld } from "./physics";
+import { clamp01, lerp, phase, toWorld } from "./physics";
 import type { Moment, SignEvent } from "./events";
 import { FLY, screwState, SPIN_IN, UNSCREW } from "./events";
 import { afp, FLOOR, TILES } from "./sign";
@@ -7,18 +7,22 @@ import { afp, FLOOR, TILES } from "./sign";
 // Lynet: en liten tordensky, et nedslag i bokstaven, og flisen brenner opp ovenfra.
 // Etterpå kommer magnetkranen inn fra sidelinjen med en ny, identisk bokstav.
 
+// Skyen glir rolig inn fra venstre over 5 sekunder (første sekund bare så vidt inn i bildet) før noe skjer.
 const T = {
-  cloudIn: [0, 50],
-  strike: 55,
-  scorch: [58, 110],
-  burn: [95, 215],
-  cloudOut: [150, 200],
-  enter: 270,
-  over: 375,
-  arrive: 425,
+  cloudIn: [0, 150],
+  strike: 160,
+  scorch: [163, 215],
+  burn: [200, 320],
+  cloudOut: [255, 305],
+  enter: 375,
+  over: 480,
+  arrive: 530,
 } as const;
 
 // Takkete lyn fra skyen ned til toppen av flisen.
+// Sinus-myk: starter og stopper rolig, uten det brå rykket midt i en kubisk kurve.
+const glide = (s: number) => (1 - Math.cos(Math.PI * clamp01(s))) / 2;
+
 const BOLT_X = [0, 26, -18, 30, -22, 16, -8, 0];
 
 export const lightning = (tileIndex: number, entry: V): SignEvent => {
@@ -113,7 +117,7 @@ const Storm: React.FC<{
 }> = ({ t, cloud, top, pose, w, h, edgeY, gone }) => {
   // Skyen blåser inn fra venstre og bremser opp over bokstaven, og stiger bort etterpå.
   const cy = cloud.y - 260 * phase(t, T.cloudOut[0], T.cloudOut[1]);
-  const cx = lerp(-220, cloud.x, easeOut((t - T.cloudIn[0]) / (T.cloudIn[1] - T.cloudIn[0]))) + 6 * Math.sin(t * 0.05);
+  const cx = lerp(-220, cloud.x, glide((t - T.cloudIn[0]) / (T.cloudIn[1] - T.cloudIn[0]))) + 6 * Math.sin(t * 0.05);
   const a = t - T.strike;
   const boltOn = (a >= 0 && a < 4) || (a >= 6 && a < 10) || (a >= 12 && a < 14);
   const y0 = cy + 40;
@@ -128,7 +132,7 @@ const Storm: React.FC<{
     <g>
       {/* Røyk */}
       {Array.from({ length: 16 }, (_, i) => {
-        const born = 65 + i * 9;
+        const born = T.strike + 10 + i * 9;
         const age = t - born;
         if (age < 0 || age >= 80) return null;
         return (
@@ -165,7 +169,7 @@ const Storm: React.FC<{
       )}
       {/* Aske som drysser ned */}
       {Array.from({ length: 28 }, (_, i) => {
-        const born = 100 + i * 4;
+        const born = T.burn[0] + 5 + i * 4;
         const age = t - born;
         if (age < 0) return null;
         const y = Math.min(FLOOR - 4, edgeY(born) + age * 1.1 + 0.015 * age * age);

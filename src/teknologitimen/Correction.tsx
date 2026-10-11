@@ -1,6 +1,11 @@
 import type { V } from "./physics";
 import { clamp01, ease, lerp, lerpV, phase } from "./physics";
 import { afp } from "./sign";
+import { Watch } from "./Watch";
+
+// Ny klokke for hver gang hanska dukker opp (påskeegg, se Watch.tsx).
+const WATCH_DRAW = 1;
+const WATCH_ERASE = 5;
 
 // Rettelsen: designet staver «Tekologitimen». En hånd tegner inn en rød «N» med pil ned mellom k og o,
 // og helt på slutten kommer den samme hånden og visker den ut igjen (misforstått rydding).
@@ -113,6 +118,8 @@ const MarkerHand: React.FC<{ tip: V }> = ({ tip }) => {
       <g transform={`translate(${fist.x} ${fist.y}) rotate(${arm})`}>
         <rect x={40} y={-36} width={3200} height={72} fill={afp.purple} stroke={INK} strokeWidth={4} />
         <rect x={28} y={-44} width={26} height={88} rx={9} fill={afp.white} stroke={INK} strokeWidth={4} />
+      <Watch x={78} y={0} variant={WATCH_ERASE} rotate={-90} />
+        <Watch x={78} y={0} variant={WATCH_DRAW} rotate={-90} />
       </g>
       <g transform={`translate(${tip.x} ${tip.y}) rotate(${pen})`}>
         <path d="M 0 0 L 26 -10 L 26 10 Z" fill={afp.marker} stroke={INK} strokeWidth={3} strokeLinejoin="round" />
