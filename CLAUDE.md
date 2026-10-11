@@ -79,7 +79,7 @@ Remotion 4 (React 19 + TypeScript) for programmatic video. Node 24. Remotion bun
 - `npx remotion render <CompositionId> out/<name>.mp4` — render a video (e.g. `npx remotion render TestAnimasjon out/test.mp4`)
 - `npx remotion still <CompositionId> out/<name>.png --frame=<n>` — render a single frame (fast way to check a visual)
 - `npm run lint` — typecheck (`tsc --noEmit`); there are no tests
-- `python3 tts.py <name> [--all] [--force] [--format wav] [--style "..."]` — voice-over: reads `tts_texts/<name>.txt`, writes `tts_sound/<name>.mp3` via Gemini TTS on Vertex AI (model `gemini-3.1-flash-tts-preview`, voice Callirrhoe, `nb-NO`; key in `VERTEX_API_KEY`). Standard library only; MP3 via Remotion's bundled ffmpeg. For use in a composition the file must be under `public/` (`staticFile`).
+- `python3 tts.py <name> [--all] [--force] [--format wav] [--style "..."]` — voice-over (default direction `STYLE`: norsk bokmål, klar og informerende; the model rejects `systemInstruction`, so it is prefixed to the text; a file wrapped in `<speak>` is SSML whose `<break>`s the script turns into exact silence by speaking each part separately): reads `tts_texts/<name>.txt`, writes `tts_sound/<name>.mp3` via Gemini TTS on Vertex AI (model `gemini-3.1-flash-tts-preview`, voice Callirrhoe, `nb-NO`; key in `VERTEX_API_KEY`). Standard library only; MP3 via Remotion's bundled ffmpeg. For use in a composition the file must be under `public/` (`staticFile`).
 
 ## Architecture
 

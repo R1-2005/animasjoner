@@ -8,16 +8,33 @@ Reads tts_texts/<name>.txt and writes tts_sound/<name>.mp3 (or .wav).
   python3 tts.py --all                # every text without a sound file yet
   python3 tts.py --all --force        # regenerate everything
   python3 tts.py scene_0 --format wav
-  python3 tts.py scene_0 --style "Les rolig og litt tørrvittig:"
+  python3 tts.py scene_0 --style "Les rolig og litt tørrvittig:"   # replaces STYLE
+  python3 tts.py scene_0 --style ""                               # no style
+
+A text file can be SSML (wrapped in <speak>...</speak>) to control pauses:
+
+  <speak>
+    Velkommen. <break time="2s"/> La oss gå rett på.
+  </speak>
+
+The model only treats <break> as a hint (3 s came out as 2.4 s), so the script
+does the pauses itself: the text is split at every <break>, each part is spoken
+separately with its own silence at the ends trimmed, and the parts are joined
+with exactly the requested silence. time="500ms" or "1.5s"; without time,
+strength="weak|medium|strong|x-strong" (0.25/0.5/1/2 s, medium is default).
+Other SSML tags are removed; Gemini's own tags such as [sigh] are passed on.
 
 Needs the environment variable VERTEX_API_KEY. Uses only the standard library;
 MP3 encoding uses ffmpeg (system ffmpeg, or the one bundled with Remotion).
 """
 
 import argparse
+import array
 import base64
+import html
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -33,6 +50,10 @@ SOUND_DIR = ROOT / "tts_sound"
 MODEL = "gemini-3.1-flash-tts-preview"
 VOICE = "Callirrhoe"
 LANGUAGE = "nb-NO"  # Norwegian Bokmål
+# The TTS model rejects systemInstruction, so the direction goes in front of the
+# text instead. The model follows it without reading it aloud (checked by
+# transcribing the output).
+STYLE = "Les følgende tekst på norsk bokmål, med en klar, informerende stemme:"
 SAMPLE_RATE = 24000  # the API returns 16-bit mono PCM at 24 kHz
 
 
@@ -68,6 +89,72 @@ def synthesize(text: str, model: str, voice: str, language: str) -> bytes:
 
     parts = result["candidates"][0]["content"]["parts"]
     return b"".join(base64.b64decode(p["inlineData"]["data"]) for p in parts if "inlineData" in p)
+
+
+BREAK = re.compile(r"<break\b([^>]*)/?>", re.IGNORECASE)
+STRENGTH = {"none": 0, "x-weak": 0.1, "weak": 0.25, "medium": 0.5, "strong": 1.0, "x-strong": 2.0}
+
+
+def break_seconds(attributes: str) -> float:
+    time = re.search(r'time\s*=\s*"([\d.]+)\s*(ms|s)"', attributes)
+    if time:
+        value = float(time.group(1))
+        return value / 1000 if time.group(2) == "ms" else value
+    strength = re.search(r'strength\s*=\s*"([\w-]+)"', attributes)
+    return STRENGTH.get(strength.group(1) if strength else "medium", 0.5)
+
+
+def parse_ssml(ssml: str) -> list[str | float]:
+    """Split SSML into spoken text and pauses (seconds), in order."""
+    pieces: list[str | float] = []
+    position = 0
+    for match in list(BREAK.finditer(ssml)) + [None]:
+        end = match.start() if match else len(ssml)
+        chunk = re.sub(r"</?(p|s)\b[^>]*>", "\n", ssml[position:end])
+        chunk = html.unescape(re.sub(r"<[^>]+>", " ", chunk))
+        chunk = re.sub(r"[ \t]+", " ", chunk).strip()
+        if chunk:
+            pieces.append(chunk)
+        if match:
+            pieces.append(break_seconds(match.group(1)))
+            position = match.end()
+    return pieces
+
+
+MARGIN = 0.05  # seconds of near-silence kept at each end of a spoken part
+
+
+def trim_silence(pcm: bytes, threshold: int = 300, keep: float = MARGIN) -> bytes:
+    """Remove silence at both ends, keeping a short margin so nothing is clipped."""
+    samples = array.array("h", pcm)
+    loud = [i for i, s in enumerate(samples) if abs(s) > threshold]
+    if not loud:
+        return b""
+    margin = int(keep * SAMPLE_RATE)
+    start = max(0, loud[0] - margin)
+    end = min(len(samples), loud[-1] + margin)
+    return samples[start:end].tobytes()
+
+
+def silence(seconds: float) -> bytes:
+    return bytes(2 * int(seconds * SAMPLE_RATE))
+
+
+def speak(source: str, style: str, model: str, voice: str, language: str) -> tuple[bytes, int]:
+    """Plain text: one request. SSML: one request per part between breaks.
+    Returns the PCM and the number of pauses inserted."""
+    prefix = f"{style}\n" if style else ""
+    if not source.lstrip().lower().startswith("<speak"):
+        return synthesize(prefix + source, model, voice, language), 0
+    pcm = b""
+    pauses = 0
+    for piece in parse_ssml(source):
+        if isinstance(piece, float):
+            pcm += silence(max(0.0, piece - 2 * MARGIN))  # margins count towards the pause
+            pauses += 1
+        else:
+            pcm += trim_silence(synthesize(prefix + piece, model, voice, language))
+    return pcm, pauses
 
 
 def write_wav(pcm: bytes, path: Path) -> None:
@@ -108,7 +195,7 @@ def main() -> None:
     parser.add_argument("--voice", default=VOICE)
     parser.add_argument("--model", default=MODEL)
     parser.add_argument("--language", default=LANGUAGE)
-    parser.add_argument("--style", help="instruction placed before the text, e.g. 'Les rolig:'")
+    parser.add_argument("--style", default=STYLE, help="direction placed before the text (default: STYLE)")
     args = parser.parse_args()
 
     if args.all:
@@ -127,14 +214,13 @@ def main() -> None:
         if out.exists() and not args.force:
             print(f"skip   {out.relative_to(ROOT)} (exists, use --force)")
             continue
-        text = text_path.read_text(encoding="utf-8").strip()
-        if args.style:
-            text = f"{args.style}\n{text}"
+        source = text_path.read_text(encoding="utf-8").strip()
         print(f"tts    {text_path.relative_to(ROOT)} ...", flush=True)
-        pcm = synthesize(text, args.model, args.voice, args.language)
+        pcm, pauses = speak(source, args.style, args.model, args.voice, args.language)
         (write_mp3 if args.format == "mp3" else write_wav)(pcm, out)
         seconds = len(pcm) / (2 * SAMPLE_RATE)
-        print(f"wrote  {out.relative_to(ROOT)} ({duration(seconds)})")
+        note = f", {pauses} pause{'s' if pauses != 1 else ''}" if pauses else ""
+        print(f"wrote  {out.relative_to(ROOT)} ({duration(seconds)}{note})")
         generated.append((str(out.relative_to(ROOT)), seconds))
 
     if generated:
