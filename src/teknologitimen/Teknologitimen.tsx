@@ -1,5 +1,6 @@
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from "remotion";
 import type { Moment, ScrewState, SignEvent, TileState } from "./events";
+import { Correction, DRAW_END, ERASE_FRAMES } from "./Correction";
 import { fall, gJoke, straighten } from "./events";
 import { RescuerView } from "./Rescuers";
 import type { Tile } from "./sign";
@@ -9,8 +10,9 @@ import { afp, FLOOR, SCREW_SIZE, TILES } from "./sign";
 // og blir reddet av stadig nye mekanismer. Rolig tempo og sømløs loop.
 
 // Indekser i TILES: 0 T, 1 e, 2 k, 3 o, 4 l, 5 o, 6 g, 7 i | 8 t, 9 i, 10 m, 11 e, 12 n.
+// g-spøken åpner, fordi den er ferdig før hånden tegner inn N-en etter 15 sekunder.
 const SCRIPT: SignEvent[] = [
-  straighten({ tile: 2, lose: [1], pivot: 0, rescuer: "hand", entry: { x: 820, y: -320 }, hold: { x: 62, y: -70 } }),
+  gJoke(6, { x: 2150, y: 600 }, { x: 64, y: 40 }),
   fall({ tile: 0, rescuer: "arm", base: { x: -180, y: 1180 }, entry: { x: -700, y: 900 }, land: { dx: 150, rot: -6 } }),
   fall({ tile: 12, rescuer: "lift", entry: { x: 2250, y: FLOOR }, land: { dx: -30, rot: 5 } }),
   // Den nederste i-en henger bare i én skrue nederst, så den velter rundt og blir et «¡».
@@ -36,7 +38,8 @@ const SCRIPT: SignEvent[] = [
     hold: { x: 50, y: 60 },
   }),
   fall({ tile: 1, rescuer: "drone", entry: { x: 2250, y: 260 }, exit: { x: -350, y: 180 }, land: { dx: -20, rot: 7 } }),
-  gJoke(6, { x: 2150, y: 600 }, { x: 64, y: 40 }),
+  // Hånden kommer oppe fra venstre så ermet ikke dekker N-en.
+  straighten({ tile: 2, lose: [1], pivot: 0, rescuer: "hand", entry: { x: 230, y: -320 }, hold: { x: 62, y: -70 } }),
   fall({ tile: 10, rescuer: "magnet", land: { dx: 0, rot: -4 } }),
   straighten({ tile: 8, lose: [0], pivot: 1, rescuer: "hand", entry: { x: -250, y: 800 }, hold: { x: -60, y: 50 } }),
   fall({ tile: 4, rescuer: "claw", land: { dx: -25, rot: 6 } }),
@@ -47,16 +50,18 @@ const GAP = 120; // stille sekunder mellom hendelsene
 
 const TIMELINE = (() => {
   let t = FIRST;
-  return SCRIPT.map((e) => {
-    const start = t;
-    t += e.duration + GAP;
+  return SCRIPT.map((e, i) => {
+    // Ingen bokstaver faller mens N-en tegnes.
+    const start = i === 0 ? t : Math.max(t, DRAW_END + GAP);
+    t = start + e.duration + GAP;
     return { ...e, start };
   });
 })();
 
 const last = TIMELINE[TIMELINE.length - 1];
-// Siste pause er like lang som de andre, inkludert den rolige starten, så loopen ikke synes.
-export const TEKNOLOGITIMEN_FRAMES = last.start + last.duration + GAP - FIRST;
+// Til slutt visker hånden ut N-en, og loopen starter på nytt i det den er borte.
+const ERASE_AT = last.start + last.duration + 60;
+export const TEKNOLOGITIMEN_FRAMES = ERASE_AT + ERASE_FRAMES;
 
 const homeState = (tile: Tile): TileState => ({
   pose: tile.home,
@@ -202,6 +207,7 @@ export const Teknologitimen: React.FC = () => {
         st.screws.map((s, k) => (s.loose ? <LooseScrew key={`${i}-${k}`} s={s} slot={TILES[i].screws[k].slot} /> : null)),
       )}
       <svg width={1920} height={1080} viewBox="0 0 1920 1080" style={{ position: "absolute", inset: 0 }}>
+        <Correction frame={frame} eraseAt={ERASE_AT} />
         {moments.map((m) =>
           m.rescuer ? <RescuerView key={m.tile} r={m.rescuer} frame={frame} /> : null,
         )}

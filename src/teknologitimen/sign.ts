@@ -27,6 +27,8 @@ export const afp = {
   metalEdge: "#6b6b69",
   slot: "#4a4a48",
   coral: "#dd5c49",
+  // Fyldig rød tusj for rettelsen av skrivefeilen.
+  marker: "#d7262e",
   yellow: "#f7cc62",
   teal: "#005b5c",
   mint: "#a6d3ca",
