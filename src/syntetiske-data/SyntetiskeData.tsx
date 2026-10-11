@@ -145,9 +145,15 @@ export const SyntetiskeData: React.FC = () => {
       />
       <Audio
         src={staticFile("scene_3.mp3")}
-        durationInFrames={1507.68}
+        durationInFrames={1536.48}
         premountFor={30}
-        from={3427}
+        from={3431}
+      />
+      <Audio
+        src={staticFile("scene_4.mp3")}
+        durationInFrames={1160.64}
+        premountFor={30}
+        from={5034}
       />
     </>
   );

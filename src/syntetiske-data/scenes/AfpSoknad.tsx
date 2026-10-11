@@ -39,9 +39,11 @@ const T = {
 
 // Pauser: når søkeren er presentert, før vedtaket sendes, og på sluttbildet.
 export const AFP_HOLDS: Hold[] = [
+  { at: 105, frames: 8 * 30 }, // kildene er tegnet opp, før søknaden hentes fra Nav
   { at: 200, frames: 5 * 30 },
-  { at: 765, frames: 5 * 30 },
-  { at: 870, frames: 10 * 30 },
+  { at: 508, frames: 4 * 30 }, // fase 1 er krysset av («→ videre til fase 2»), før inntektene hentes
+  { at: 765, frames: 3 * 30 }, // «INNVILGET», før vedtaket sendes til Nav
+  { at: 870, frames: 75 }, // sluttbildet, før arket viskes ut
 ];
 
 const SOURCES = [
