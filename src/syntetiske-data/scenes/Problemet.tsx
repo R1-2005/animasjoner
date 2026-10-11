@@ -40,7 +40,7 @@ const T = {
 export const PROBLEMET_HOLDS: Hold[] = [
   { at: 270, frames: 2 * 30 }, // personkortet med «PERSONOPPLYSNINGER»-stempelet
   { at: 362, frames: 3 * 30 }, // «Hver prikk er et ekte menneske»
-  { at: 560, frames: 10 * 30 },
+  { at: 560, frames: 4 * 30 }, // sluttbildet
 ];
 
 const SOURCES = [

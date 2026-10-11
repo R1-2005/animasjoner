@@ -50,8 +50,8 @@ const PILE = 14;
 
 // Pauser: når alle aktørene er tegnet, og på sluttbildet.
 export const FAKTURERING_HOLDS: Hold[] = [
-  { at: 105, frames: 5 * 30 },
-  { at: 800, frames: 10 * 30 },
+  { at: 105, frames: 8 * 30 }, // elementene er tegnet opp, før flyten starter
+  { at: 800, frames: 8 * 30 }, // sluttbildet
 ];
 
 const SOURCES = [

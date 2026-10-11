@@ -12,7 +12,7 @@ import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
 import { formatNumber, GOLD_SPARKLES, REGISTER, REGISTER_LEVEL } from "../layout";
 
-export const FUNDAMENTET_FRAMES = 1145;
+export const FUNDAMENTET_FRAMES = 1150;
 
 // Tidslinje for scenen (lokale frames).
 const T = {
@@ -35,16 +35,16 @@ const T = {
   samle: 700,
   register: 712,
   poeng: 745,
-  // Det blå registeret vises i 5 s, så forvandles det, og «gullet» vises i 5 s før neste del.
-  forvandling: 745 + 5 * 30, // transmutasjonssirkelen tegnes; glimtet kommer TRANSMUTATION_FLASH senere
-  gullTekst: 745 + 5 * 30 + TRANSMUTATION_FLASH + 22,
+  // Det blå registeret vises i 7 s, så forvandles det, og «gullet» vises i 5 s før neste del.
+  forvandling: 745 + 7 * 30, // transmutasjonssirkelen tegnes; glimtet kommer TRANSMUTATION_FLASH senere
+  gullTekst: 745 + 7 * 30 + TRANSMUTATION_FLASH + 22,
 };
 
 // Pauser for foredragsholderen: på det ferdige treet, og på skogen med telleren.
 export const FUNDAMENTET_HOLDS: Hold[] = [
   { at: 215, frames: 4 * 30 }, // treet er tegnet opp, før første påskrift
   { at: 595, frames: 6 * 30 },
-  { at: 695, frames: 5 * 30 },
+  { at: 695, frames: 3 * 30 }, // skogen med telleren («Utsnitt.»)
 ];
 
 // --- Trestruktur: Foretak → fakturagrupper → virksomheter -----------------------------
