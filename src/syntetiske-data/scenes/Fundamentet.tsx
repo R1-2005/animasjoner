@@ -42,6 +42,7 @@ const T = {
 
 // Pauser for foredragsholderen: på det ferdige treet, og på skogen med telleren.
 export const FUNDAMENTET_HOLDS: Hold[] = [
+  { at: 215, frames: 4 * 30 }, // treet er tegnet opp, før første påskrift
   { at: 595, frames: 6 * 30 },
   { at: 695, frames: 5 * 30 },
 ];

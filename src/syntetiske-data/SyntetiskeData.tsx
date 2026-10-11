@@ -128,52 +128,10 @@ export const SyntetiskeData: React.FC = () => {
         <Gremlin x={1730} y={140} width={240} start={20} keys={GREMLIN} />
       </Paper>
       <Audio
-        src={staticFile("scene_0.mp3")}
-        durationInFrames={427.68}
+        src={staticFile("scene_10.mp3")}
+        durationInFrames={10637.28}
         premountFor={30}
         from={41}
-      />
-      <Audio
-        src={staticFile("scene_1.mp3")}
-        durationInFrames={1522.08}
-        premountFor={30}
-        from={497}
-      />
-      <Audio
-        src={staticFile("scene_2.mp3")}
-        durationInFrames={1333.44}
-        premountFor={30}
-        from={2038}
-      />
-      <Audio
-        src={staticFile("scene_3.mp3")}
-        durationInFrames={1536.48}
-        premountFor={30}
-        from={3431}
-      />
-      <Audio
-        src={staticFile("scene_4.mp3")}
-        durationInFrames={1160.64}
-        premountFor={30}
-        from={5034}
-      />
-      <Audio
-        src={staticFile("scene_5.mp3")}
-        durationInFrames={1031.04}
-        premountFor={30}
-        from={6227}
-      />
-      <Audio
-        src={staticFile("scene_6.mp3")}
-        durationInFrames={1897.92}
-        premountFor={30}
-        from={7336}
-      />
-      <Audio
-        src={staticFile("scene_7.mp3")}
-        durationInFrames={1643.04}
-        premountFor={30}
-        from={9237}
       />
     </>
   );
