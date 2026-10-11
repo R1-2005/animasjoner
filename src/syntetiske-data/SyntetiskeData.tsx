@@ -1,4 +1,5 @@
-import { Series, useCurrentFrame } from "remotion";
+import { Audio } from "@remotion/media";
+import { Series, useCurrentFrame, staticFile } from "remotion";
 import { Gremlin, type GremlinKey } from "../components/Gremlin";
 import { type Hold, holdFrames, wallFrame, WithHolds } from "../components/Holds";
 import { Paper } from "../components/Paper";
@@ -60,10 +61,10 @@ export const SYNTETISKE_DATA_FRAMES = SCENES.reduce((sum, s) => sum + length(s),
 const GREMLIN: GremlinKey[] = [
   { at: 0, expression: "nøytral" },
   { at: at("fundamentet", 60), expression: "spørrende", transition: "blink" },
-  { at: at("fundamentet", 385), expression: "overrasket", transition: "shake" },
-  { at: at("fundamentet", 495), expression: "glad", transition: "pop" },
-  { at: at("fundamentet", 645), expression: "overrasket", transition: "shake" },
-  { at: at("fundamentet", 682), expression: "triumferende", transition: "pop" },
+  { at: at("fundamentet", 640), expression: "overrasket", transition: "shake" },
+  { at: at("fundamentet", 750), expression: "glad", transition: "pop" },
+  { at: at("fundamentet", 900), expression: "overrasket", transition: "shake" },
+  { at: at("fundamentet", 937), expression: "triumferende", transition: "pop" },
   { at: at("fakturering", 0), expression: "nøytral", transition: "blink" },
   { at: at("fakturering", 175), expression: "overrasket", transition: "shake" },
   { at: at("fakturering", 265), expression: "spørrende", transition: "blink" },
@@ -105,23 +106,49 @@ export const SyntetiskeData: React.FC = () => {
   const current = [...SCENES].reverse().find((_, i) => START[SCENES.length - 1 - i] <= frame) ?? SCENES[0];
 
   return (
-    <Paper
-      titleBlock={[
-        { label: "TEGNING", value: "Syntetiske data" },
-        { label: "SCENE", value: current.id },
-        { label: "REV", value: "MED-LOS-ALAMOS-REV-45" },
-      ]}
-    >
-      <Series>
-        {SCENES.map((scene) => (
-          <Series.Sequence key={scene.key} durationInFrames={length(scene)}>
-            <WithHolds holds={scene.holds}>
-              <scene.Component />
-            </WithHolds>
-          </Series.Sequence>
-        ))}
-      </Series>
-      <Gremlin x={1730} y={140} width={240} start={20} keys={GREMLIN} />
-    </Paper>
+    <>
+      <Paper
+        titleBlock={[
+          { label: "TEGNING", value: "Syntetiske data" },
+          { label: "SCENE", value: current.id },
+          { label: "REV", value: "MED-LOS-ALAMOS-REV-45" },
+        ]}
+      >
+        <Series>
+          {SCENES.map((scene) => (
+            <Series.Sequence key={scene.key} durationInFrames={length(scene)}>
+              <WithHolds holds={scene.holds}>
+                <scene.Component />
+              </WithHolds>
+            </Series.Sequence>
+          ))}
+        </Series>
+        <Gremlin x={1730} y={140} width={240} start={20} keys={GREMLIN} />
+      </Paper>
+      <Audio
+        src={staticFile("scene_0.mp3")}
+        durationInFrames={427.68}
+        premountFor={30}
+        from={41}
+      />
+      <Audio
+        src={staticFile("scene_1.mp3")}
+        durationInFrames={1522.08}
+        premountFor={30}
+        from={497}
+      />
+      <Audio
+        src={staticFile("scene_2.mp3")}
+        durationInFrames={1333.44}
+        premountFor={30}
+        from={2038}
+      />
+      <Audio
+        src={staticFile("scene_3.mp3")}
+        durationInFrames={1507.68}
+        premountFor={30}
+        from={3427}
+      />
+    </>
   );
 };

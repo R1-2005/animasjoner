@@ -6,7 +6,8 @@ import { theme } from "../../style/theme";
 export const TITTEL_FRAMES = 120;
 
 // Tittelen blir stående mens foredragsholderen introduserer temaet.
-export const TITTEL_HOLDS: Hold[] = [{ at: 95, frames: 5 * 30 }];
+// Totalt 16 s: 120 frames animasjon + 12 s pause (lengden passer til voiceoveren).
+export const TITTEL_HOLDS: Hold[] = [{ at: 95, frames: 12 * 30 }];
 
 export const Tittel: React.FC = () => {
   const frame = useCurrentFrame();

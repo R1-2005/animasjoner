@@ -12,7 +12,7 @@ import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
 import { formatNumber, GOLD_SPARKLES, REGISTER, REGISTER_LEVEL } from "../layout";
 
-export const FUNDAMENTET_FRAMES = 830;
+export const FUNDAMENTET_FRAMES = 1145;
 
 // Tidslinje for scenen (lokale frames).
 const T = {
@@ -23,25 +23,27 @@ const T = {
   fg: 110,
   virkLinjer: 150,
   virk: 165,
-  notatFaktura: 215,
-  notatBedrift: 262,
-  ryddUt: 345,
-  zoom: 355,
-  skog: 370,
-  teller: 375,
-  utsnitt: 420,
-  samle: 445,
-  register: 457,
-  poeng: 490,
+  // Påskriftene kommer én om gangen, med god tid til å snakke mellom hver.
+  notatForetak: 260,
+  notatFaktura: 380,
+  notatBedrift: 500,
+  ryddUt: 600,
+  zoom: 610,
+  skog: 625,
+  teller: 630,
+  utsnitt: 675,
+  samle: 700,
+  register: 712,
+  poeng: 745,
   // Det blå registeret vises i 5 s, så forvandles det, og «gullet» vises i 5 s før neste del.
-  forvandling: 490 + 5 * 30, // transmutasjonssirkelen tegnes; glimtet kommer TRANSMUTATION_FLASH senere
-  gullTekst: 490 + 5 * 30 + TRANSMUTATION_FLASH + 22,
+  forvandling: 745 + 5 * 30, // transmutasjonssirkelen tegnes; glimtet kommer TRANSMUTATION_FLASH senere
+  gullTekst: 745 + 5 * 30 + TRANSMUTATION_FLASH + 22,
 };
 
 // Pauser for foredragsholderen: på det ferdige treet, og på skogen med telleren.
 export const FUNDAMENTET_HOLDS: Hold[] = [
-  { at: 340, frames: 6 * 30 },
-  { at: 440, frames: 5 * 30 },
+  { at: 595, frames: 6 * 30 },
+  { at: 695, frames: 5 * 30 },
 ];
 
 // --- Trestruktur: Foretak → fakturagrupper → virksomheter -----------------------------
@@ -182,6 +184,8 @@ export const Fundamentet: React.FC = () => {
         </g>
 
         <g opacity={tidy}>
+          <Annotation target={{ x: TREE.cx + 190, y: TREE.foretakY + 50 }} at={{ x: 1320, y: 340 }} start={T.notatForetak}
+            text="Sjefen, den juridiske enheten." />
           <Annotation target={{ x: main.fg[0].x - 160, y: TREE.fgY + 45 }} at={{ x: 120, y: 640 }} start={T.notatFaktura}
             text="Får én faktura hvert kvartal." />
           <Annotation target={{ x: main.virk[3], y: TREE.virkY + 80 }} at={{ x: 540, y: 885 }} start={T.notatBedrift}
