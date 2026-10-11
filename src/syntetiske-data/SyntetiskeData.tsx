@@ -155,6 +155,12 @@ export const SyntetiskeData: React.FC = () => {
         premountFor={30}
         from={5034}
       />
+      <Audio
+        src={staticFile("scene_5.mp3")}
+        durationInFrames={1031.04}
+        premountFor={30}
+        from={6227}
+      />
     </>
   );
 };

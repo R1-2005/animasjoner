@@ -38,8 +38,8 @@ const T = {
 
 // Pauser: på personkortet, på «hver prikk er et menneske», og på sluttbildet.
 export const PROBLEMET_HOLDS: Hold[] = [
-  { at: 270, frames: 5 * 30 },
-  { at: 362, frames: 5 * 30 },
+  { at: 270, frames: 2 * 30 }, // personkortet med «PERSONOPPLYSNINGER»-stempelet
+  { at: 362, frames: 3 * 30 }, // «Hver prikk er et ekte menneske»
   { at: 560, frames: 10 * 30 },
 ];
 

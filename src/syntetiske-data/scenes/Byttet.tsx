@@ -39,7 +39,7 @@ const T = {
 export const BYTTET_HOLDS: Hold[] = [
   { at: 250, frames: 5 * 30 },
   { at: 470, frames: 5 * 30 },
-  { at: 520, frames: 11 * 30 }, // selve essensen: presentatøren trenger tid her
+  { at: 520, frames: 5 * 30 }, // selve essensen (lengden passer til voiceoveren)
 ];
 
 const SOURCES = [
