@@ -37,7 +37,7 @@ const T = {
 export const LIVSLOP_HOLDS: Hold[] = [
   { at: 120, frames: 5 * 30 },
   { at: 200, frames: 4 * 30 },
-  { at: 680, frames: 10 * 30 },
+  { at: 680, frames: 27 * 30 }, // sluttbildet; tidsforløpet fortsetter (lengden passer til voiceoveren)
 ];
 
 const SOURCES = SYNTHETIC_SOURCES;

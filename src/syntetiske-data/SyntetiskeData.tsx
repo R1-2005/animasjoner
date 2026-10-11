@@ -96,9 +96,11 @@ const GREMLIN: GremlinKey[] = [
   { at: at("livslop", 625), expression: "triumferende", transition: "pop" },
   { at: at("oppsummering", 0), expression: "nøytral", transition: "blink" },
   { at: at("oppsummering", 20), expression: "glad", transition: "pop" },
-  { at: at("oppsummering", 185), expression: "overrasket", transition: "shake" },
-  { at: at("oppsummering", 260), expression: "spørrende", transition: "blink" },
-  { at: at("oppsummering", 320), expression: "triumferende", transition: "pop" },
+  { at: at("oppsummering", 110), expression: "bekymret", transition: "blink" },
+  { at: at("oppsummering", 135), expression: "glad", transition: "pop" },
+  { at: at("oppsummering", 260), expression: "overrasket", transition: "shake" },
+  { at: at("oppsummering", 335), expression: "spørrende", transition: "blink" },
+  { at: at("oppsummering", 357), expression: "triumferende", transition: "pop" },
 ];
 
 export const SyntetiskeData: React.FC = () => {
@@ -160,6 +162,18 @@ export const SyntetiskeData: React.FC = () => {
         durationInFrames={1031.04}
         premountFor={30}
         from={6227}
+      />
+      <Audio
+        src={staticFile("scene_6.mp3")}
+        durationInFrames={1897.92}
+        premountFor={30}
+        from={7336}
+      />
+      <Audio
+        src={staticFile("scene_7.mp3")}
+        durationInFrames={1643.04}
+        premountFor={30}
+        from={9237}
       />
     </>
   );

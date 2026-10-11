@@ -5,20 +5,21 @@ import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
 import { SYNTHETIC_DB_LEFT, SyntheticDb } from "../SyntheticDb";
 
-export const OPPSUMMERING_FRAMES = 350;
+export const OPPSUMMERING_FRAMES = 425;
 
-// Fire punkter, ett om gangen, med en kort pause (2 s) etter hvert.
-const T = { punkt1: 15, punkt2: 90, punkt3: 165, punkt4: 240, slutt: 320 };
+// Fem punkter, ett om gangen, med en kort pause (2 s) etter hvert.
+const T = { punkt1: 15, punkt2: 90, punkt3: 165, punkt4: 240, punkt5: 315, stempel: 355 };
 
 export const OPPSUMMERING_HOLDS: Hold[] = [
-  { at: 80, frames: 2 * 30 },
-  { at: 155, frames: 2 * 30 },
-  { at: 230, frames: 2 * 30 },
-  { at: 340, frames: 10 * 30 },
+  { at: 80, frames: 4 * 30 }, // etter «Trygt miljø …»
+  { at: 155, frames: 4 * 30 }, // etter «Reduserer konsekvensen …»
+  { at: 230, frames: 5 * 30 }, // etter «Applikasjonene er identiske …»
+  { at: 305, frames: 9 * 30 }, // etter «Simulerer edge-cases …»
+  { at: 415, frames: 20 * 30 }, // sluttbildet, så filmen ikke slutter for brått
 ];
 
 const X = 640;
-const ROW_Y = [255, 430, 605, 780];
+const ROW_Y = [248, 389, 530, 671, 812];
 
 // Liten menneskefigur, samme form som i strømmene.
 const Person: React.FC<{ x: number; y: number; color: string; s?: number }> = ({ x, y, color, s = 1.6 }) => (
@@ -32,6 +33,7 @@ export const Oppsummering: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { colors, fonts } = theme;
+  const stamp = spring({ frame: frame - T.stempel, fps, config: { damping: 9 } });
 
   const chipWidth = (label: string, mark?: string) => label.length * 13 + (mark ? 64 : 40);
   // Legger brikkene etter hverandre med lik avstand.
@@ -92,42 +94,63 @@ export const Oppsummering: React.FC = () => {
           </g>
         ))}
 
-        {/* 2: ekte og syntetisk ser likt ut for Gremlin */}
-        {point(1, "Applikasjonene er identiske mot syntetiske og reelle data", T.punkt2, (
-          <g opacity={ramp(frame, T.punkt2 + 20, 15)}>
-            {[0, 1, 2].map((k) => <Person key={k} x={X + 100 + k * 38} y={ROW_Y[1] + 62} color={colors.person} />)}
-            <text x={X + 100} y={ROW_Y[1] + 112} fontFamily={fonts.mono} fontSize={18} fill={colors.person}>ekte</text>
-            <text x={X + 240} y={ROW_Y[1] + 76} fontFamily={fonts.sans} fontSize={48} fontWeight={800} fill={colors.ink}>=</text>
-            {[0, 1, 2].map((k) => <Person key={k} x={X + 315 + k * 38} y={ROW_Y[1] + 62} color={colors.synthetic} />)}
-            <text x={X + 315} y={ROW_Y[1] + 112} fontFamily={fonts.mono} fontSize={18} fill={colors.synthetic}>syntetisk</text>
-            <text x={X + 470} y={ROW_Y[1] + 74} fontFamily={fonts.mono} fontSize={24} fontWeight={600} fill={colors.highlight}
-              opacity={ramp(frame, T.punkt2 + 45, 15)}>
+        {/* 2: lekker testmiljøet, lekker bare fiktive folk */}
+        {point(1, "Reduserer konsekvensen ved et datainnbrudd", T.punkt2, (
+          <g>
+            {chipRow(["Datainnbrudd"], ROW_Y[1] + 60, colors.person, T.punkt2 + 20, "⚠")}
+            <text x={X + 330} y={ROW_Y[1] + 67} fontFamily={fonts.mono} fontSize={24} fontWeight={600} fill={colors.highlight}
+              opacity={ramp(frame, T.punkt2 + 40, 15)}>
+              — tyvene får bare fiktive folk.
+            </text>
+          </g>
+        ))}
+
+        {/* 3: ekte og syntetisk ser likt ut for Gremlin */}
+        {point(2, "Applikasjonene er identiske mot syntetiske og reelle data", T.punkt3, (
+          <g opacity={ramp(frame, T.punkt3 + 20, 15)}>
+            {[0, 1, 2].map((k) => <Person key={k} x={X + 100 + k * 38} y={ROW_Y[2] + 62} color={colors.person} />)}
+            <text x={X + 100} y={ROW_Y[2] + 100} fontFamily={fonts.mono} fontSize={18} fill={colors.person}>ekte</text>
+            <text x={X + 240} y={ROW_Y[2] + 76} fontFamily={fonts.sans} fontSize={48} fontWeight={800} fill={colors.ink}>=</text>
+            {[0, 1, 2].map((k) => <Person key={k} x={X + 315 + k * 38} y={ROW_Y[2] + 62} color={colors.synthetic} />)}
+            <text x={X + 315} y={ROW_Y[2] + 100} fontFamily={fonts.mono} fontSize={18} fill={colors.synthetic}>syntetisk</text>
+            <text x={X + 470} y={ROW_Y[2] + 74} fontFamily={fonts.mono} fontSize={24} fontWeight={600} fill={colors.highlight}
+              opacity={ramp(frame, T.punkt3 + 45, 15)}>
               — Gremlin merker ingen forskjell.
             </text>
           </g>
         ))}
 
-        {/* 3: hendelser som er vanskelige å finne i ekte data */}
-        {point(2, "Simulerer edge-cases og ekstreme hendelser", T.punkt3, (
+        {/* 4: hendelser som er vanskelige å finne i ekte data */}
+        {point(3, "Simulerer edge-cases og ekstreme hendelser", T.punkt4, (
           <g>
-            {chipRow(["Død", "Fødselsnummerskifte", "Navneendring", "Flytting"], ROW_Y[2] + 60, colors.synthetic, T.punkt3 + 20)}
+            {chipRow(["Død", "Fødselsnummerskifte", "Navneendring", "Flytting"], ROW_Y[3] + 60, colors.synthetic, T.punkt4 + 20)}
           </g>
         ))}
 
-        {/* 4: kan kobles mot andre syntetiske miljøer */}
-        {point(3, "Kan integreres mot andre syntetiske miljøer", T.punkt4, (
+        {/* 5: kan kobles mot andre syntetiske miljøer */}
+        {point(4, "Kan integreres mot andre syntetiske miljøer", T.punkt5, (
           <g>
-            {chipRow(["Dolly", "Tenor"], ROW_Y[3] + 60, colors.accent, T.punkt4 + 20, "⇄")}
-            <text x={X + 400} y={ROW_Y[3] + 67} fontFamily={fonts.mono} fontSize={21} fill={colors.inkSoft}
-              opacity={ramp(frame, T.punkt4 + 35, 15)}>
+            {chipRow(["Dolly", "Tenor"], ROW_Y[4] + 60, colors.accent, T.punkt5 + 20, "⇄")}
+            <text x={X + 400} y={ROW_Y[4] + 67} fontFamily={fonts.mono} fontSize={21} fill={colors.inkSoft}
+              opacity={ramp(frame, T.punkt5 + 35, 15)}>
               ende-til-ende-test på tvers av syntetiske miljøer
             </text>
           </g>
         ))}
 
-        <text x={X + 75} y={ROW_Y[3] + 160} fontFamily={fonts.mono} fontSize={20} fill={colors.inkSoft} opacity={ramp(frame, T.slutt, 20)}>
-          Ingen ekte mennesker ble brukt i denne presentasjonen.
-        </text>
+        {/* Stempel nede til venstre, samtidig med siste poeng */}
+        {frame >= T.stempel ? (
+          <g transform={`translate(320 905) rotate(-4) scale(${0.4 + 0.6 * stamp})`} opacity={Math.min(1, stamp * 1.5)}>
+            <rect x={-215} y={-48} width={430} height={96} rx={8} fill="white" fillOpacity={0.85} stroke={colors.success}
+              strokeWidth={5} />
+            <text textAnchor="middle" y={-4} fontFamily={fonts.mono} fontSize={30} fontWeight={700} fill={colors.success}>
+              INGEN EKTE MENNESKER
+            </text>
+            <text textAnchor="middle" y={28} fontFamily={fonts.mono} fontSize={18} fontWeight={600} fill={colors.success}>
+              ble brukt i denne presentasjonen
+            </text>
+          </g>
+        ) : null}
       </svg>
     </AbsoluteFill>
   );
