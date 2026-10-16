@@ -10,6 +10,7 @@ Reads tts_texts/<name>.txt and writes tts_sound/<name>.mp3 (or .wav).
   python3 tts.py scene_0 --format wav
   python3 tts.py scene_0 --style "Les rolig og litt tørrvittig:"   # replaces STYLE
   python3 tts.py scene_0 --style ""                               # no style
+  python3 tts.py scene_0 --speed 1.0                              # original pace
 
 A text file can be SSML (wrapped in <speak>...</speak>) to control pauses:
 
@@ -23,6 +24,14 @@ separately with its own silence at the ends trimmed, and the parts are joined
 with exactly the requested silence. time="500ms" or "1.5s"; without time,
 strength="weak|medium|strong|x-strong" (0.25/0.5/1/2 s, medium is default).
 Other SSML tags are removed; Gemini's own tags such as [sigh] are passed on.
+
+A file can start with a voice header that sets voice and speed for that file:
+
+  <voice tempo="1.1">Alnilam</voice>
+  <speak> ... </speak>
+
+Both parts are optional (<voice tempo="1.05"></voice> keeps the default voice).
+Precedence: --voice/--speed on the command line, then the header, then VOICE/SPEED.
 
 Needs the environment variable VERTEX_API_KEY. Uses only the standard library;
 MP3 encoding uses ffmpeg (system ffmpeg, or the one bundled with Remotion).
@@ -48,12 +57,16 @@ TEXT_DIR = ROOT / "tts_texts"
 SOUND_DIR = ROOT / "tts_sound"
 
 MODEL = "gemini-3.1-flash-tts-preview"
-VOICE = "Callirrhoe"
+VOICE = "Alnilam"
 LANGUAGE = "nb-NO"  # Norwegian Bokmål
 # The TTS model rejects systemInstruction, so the direction goes in front of the
 # text instead. The model follows it without reading it aloud (checked by
 # transcribing the output).
 STYLE = "Les følgende tekst på norsk bokmål, med en klar, informerende stemme:"
+# Speed-up of the speech (not the pauses), done with ffmpeg's atempo so the pitch
+# stays the same. Asking for a faster pace in STYLE overshoots (about 30 % faster
+# for "litt raskere tempo"), so fine adjustment is done here.
+SPEED = 1.1
 SAMPLE_RATE = 24000  # the API returns 16-bit mono PCM at 24 kHz
 
 
@@ -140,12 +153,38 @@ def silence(seconds: float) -> bytes:
     return bytes(2 * int(seconds * SAMPLE_RATE))
 
 
-def speak(source: str, style: str, model: str, voice: str, language: str) -> tuple[bytes, int]:
+def change_tempo(pcm: bytes, factor: float) -> bytes:
+    if factor == 1.0 or not pcm:
+        return pcm
+    raw = ["-f", "s16le", "-ar", str(SAMPLE_RATE), "-ac", "1"]
+    # Remotion's slim ffmpeg cannot write raw PCM, so it writes WAV and the header is dropped.
+    cmd = ffmpeg_command() + [
+        "-loglevel", "error", *raw, "-i", "pipe:0",
+        "-filter:a", f"atempo={factor}", "-c:a", "pcm_s16le", "-f", "wav", "pipe:1",
+    ]
+    out = subprocess.run(cmd, input=pcm, capture_output=True, check=True, cwd=ROOT).stdout
+    data = out.find(b"data", 12)
+    return out[data + 8 :]
+
+
+VOICE_HEADER = re.compile(r"\s*<voice\b([^>]*)>(.*?)</voice>", re.IGNORECASE | re.DOTALL)
+
+
+def parse_voice_header(source: str) -> tuple[str | None, float | None, str]:
+    """Split off a leading <voice tempo="1.1">Name</voice>. Returns voice, tempo, rest."""
+    match = VOICE_HEADER.match(source)
+    if not match:
+        return None, None, source
+    tempo = re.search(r'tempo\s*=\s*"([\d.]+)"', match.group(1))
+    return match.group(2).strip() or None, float(tempo.group(1)) if tempo else None, source[match.end():].strip()
+
+
+def speak(source: str, style: str, model: str, voice: str, language: str, speed: float) -> tuple[bytes, int]:
     """Plain text: one request. SSML: one request per part between breaks.
     Returns the PCM and the number of pauses inserted."""
     prefix = f"{style}\n" if style else ""
     if not source.lstrip().lower().startswith("<speak"):
-        return synthesize(prefix + source, model, voice, language), 0
+        return change_tempo(synthesize(prefix + source, model, voice, language), speed), 0
     pcm = b""
     pauses = 0
     for piece in parse_ssml(source):
@@ -153,7 +192,7 @@ def speak(source: str, style: str, model: str, voice: str, language: str) -> tup
             pcm += silence(max(0.0, piece - 2 * MARGIN))  # margins count towards the pause
             pauses += 1
         else:
-            pcm += trim_silence(synthesize(prefix + piece, model, voice, language))
+            pcm += change_tempo(trim_silence(synthesize(prefix + piece, model, voice, language)), speed)
     return pcm, pauses
 
 
@@ -192,10 +231,11 @@ def main() -> None:
     parser.add_argument("--all", action="store_true", help="every .txt in tts_texts/")
     parser.add_argument("--force", action="store_true", help="overwrite existing sound files")
     parser.add_argument("--format", choices=["mp3", "wav"], default="mp3")
-    parser.add_argument("--voice", default=VOICE)
+    parser.add_argument("--voice", help=f"overrides the file's <voice> header (default: {VOICE})")
     parser.add_argument("--model", default=MODEL)
     parser.add_argument("--language", default=LANGUAGE)
     parser.add_argument("--style", default=STYLE, help="direction placed before the text (default: STYLE)")
+    parser.add_argument("--speed", type=float, help=f"tempo factor 0.5-2, overrides the file's header (default: {SPEED})")
     args = parser.parse_args()
 
     if args.all:
@@ -214,9 +254,13 @@ def main() -> None:
         if out.exists() and not args.force:
             print(f"skip   {out.relative_to(ROOT)} (exists, use --force)")
             continue
-        source = text_path.read_text(encoding="utf-8").strip()
-        print(f"tts    {text_path.relative_to(ROOT)} ...", flush=True)
-        pcm, pauses = speak(source, args.style, args.model, args.voice, args.language)
+        file_voice, file_speed, source = parse_voice_header(text_path.read_text(encoding="utf-8").strip())
+        voice = args.voice or file_voice or VOICE
+        speed = args.speed or file_speed or SPEED
+        if not 0.5 <= speed <= 2.0:
+            sys.exit(f"Speed {speed} in {text_path.name} is outside 0.5-2")
+        print(f"tts    {text_path.relative_to(ROOT)} (voice {voice}, tempo {speed:g}) ...", flush=True)
+        pcm, pauses = speak(source, args.style, args.model, voice, args.language, speed)
         (write_mp3 if args.format == "mp3" else write_wav)(pcm, out)
         seconds = len(pcm) / (2 * SAMPLE_RATE)
         note = f", {pauses} pause{'s' if pauses != 1 else ''}" if pauses else ""
