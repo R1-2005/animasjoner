@@ -39,7 +39,7 @@ const T = {
 export const BYTTET_HOLDS: Hold[] = [
   { at: 250, frames: 5 * 30 },
   { at: 470, frames: 5 * 30 },
-  { at: 520, frames: 5 * 30 }, // selve essensen (lengden passer til voiceoveren)
+  { at: 520, frames: 105 }, // selve essensen (lengden passer til voiceoveren)
 ];
 
 const SOURCES = [
@@ -86,12 +86,12 @@ export const Byttet: React.FC = () => {
         </text>
 
         <Wipe start={T.ryddOpp} id="wipe-byttet">
-          <Header title="Erstatningen" subtitle="Samme Gremlin. Nye kilder." start={-20} />
+          <Header title="Erstatningen" subtitle="Samme fagsystem. Nye kilder." start={-20} />
 
-          <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[GREMLIN · TESTMILJØ]">
+          <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[FAGSYSTEM · TESTMILJØ]">
             <text x={ENGINE.x + ENGINE.w / 2} y={ENGINE.y + 52} textAnchor="middle" fontFamily={fonts.sans} fontSize={30}
               fontWeight={700} fill={colors.ink}>
-              Gremlin
+              Fagsystem
             </text>
             <Gear cx={910} cy={480} r={72} teeth={12} angle={live * (0.5 + busy * 1.5)} />
             <Gear cx={1005} cy={438} r={44} teeth={7} angle={-live * (0.5 + busy * 1.5) * (12 / 7) + 12} color={colors.gridMinor} />
@@ -216,7 +216,7 @@ export const Byttet: React.FC = () => {
           <Annotation target={{ x: 1300, y: SOURCE_Y.folkeregisteret + 14 }} at={{ x: 1190, y: 860 }} start={T.notat}
             text="Klager aldri på datalekasjer." color={colors.synthetic} instant />
           <Annotation target={{ x: 800, y: 660 }} at={{ x: 140, y: 900 }} start={T.lurt + 12}
-            text="Vi lurer Gremlin til å tro at dataene er ekte." instant />
+            text="Vi lurer fagsystemet til å tro at dataene er ekte." instant />
         </Wipe>
       </svg>
     </AbsoluteFill>

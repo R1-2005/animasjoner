@@ -6,8 +6,8 @@ import { theme } from "../../style/theme";
 export const TITTEL_FRAMES = 120;
 
 // Tittelen blir stående mens foredragsholderen introduserer temaet.
-// Totalt 16 s: 120 frames animasjon + 12 s pause (lengden passer til voiceoveren).
-export const TITTEL_HOLDS: Hold[] = [{ at: 95, frames: 12 * 30 }];
+// Totalt 14 s: 120 frames animasjon + 10 s pause (lengden passer til voiceoveren).
+export const TITTEL_HOLDS: Hold[] = [{ at: 95, frames: 10 * 30 }];
 
 export const Tittel: React.FC = () => {
   const frame = useCurrentFrame();
@@ -24,7 +24,7 @@ export const Tittel: React.FC = () => {
         </text>
         <text x={960} y={520} textAnchor="middle" fontFamily={fonts.sans} fontSize={110} fontWeight={800} fill={colors.ink}
           opacity={t} transform={`translate(0 ${(1 - t) * 20})`}>
-          Syntetiske data i Gremlin
+          Syntetiske data i fagsystemet
         </text>
         <line x1={960 - 520 * line} x2={960 + 520 * line} y1={565} y2={565} stroke={colors.accent} strokeWidth={4}
           opacity={1 - ramp(frame, TITTEL_FRAMES - 18, 18)} />

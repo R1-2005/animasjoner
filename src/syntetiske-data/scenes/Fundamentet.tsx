@@ -12,7 +12,7 @@ import { ramp } from "../../style/anim";
 import { theme } from "../../style/theme";
 import { formatNumber, GOLD_SPARKLES, REGISTER, REGISTER_LEVEL } from "../layout";
 
-export const FUNDAMENTET_FRAMES = 1150;
+export const FUNDAMENTET_FRAMES = 1090;
 
 // Tidslinje for scenen (lokale frames).
 const T = {
@@ -35,9 +35,9 @@ const T = {
   samle: 700,
   register: 712,
   poeng: 745,
-  // Det blå registeret vises i 7 s, så forvandles det, og «gullet» vises i 5 s før neste del.
-  forvandling: 745 + 7 * 30, // transmutasjonssirkelen tegnes; glimtet kommer TRANSMUTATION_FLASH senere
-  gullTekst: 745 + 7 * 30 + TRANSMUTATION_FLASH + 22,
+  // Det blå registeret vises i 6 s, så forvandles det, og «gullet» vises i 5 s før neste del.
+  forvandling: 745 + 6 * 30, // transmutasjonssirkelen tegnes; glimtet kommer TRANSMUTATION_FLASH senere
+  gullTekst: 745 + 6 * 30 + TRANSMUTATION_FLASH + 22,
 };
 
 // Pauser for foredragsholderen: på det ferdige treet, og på skogen med telleren.
@@ -131,7 +131,7 @@ export const Fundamentet: React.FC = () => {
   const mainOpacity = 1 - ramp(frame, T.zoom + 30, 15);
   const tidy = 1 - ramp(frame, T.ryddUt, 15);
 
-  const count = interpolate(frame, [T.teller, T.teller + 60], [0, 17000], {
+  const count = interpolate(frame, [T.teller, T.teller + 60], [0, 33000], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),

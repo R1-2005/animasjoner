@@ -1,20 +1,19 @@
-<voice tempo="1.08">Alnilam</voice>
-<speak>
-Hallo! I denne presentasjonen skal vi vise hvordan vårt eget miljø med syntetiske data fungerer. Tiden vi har til rådighet er <break time="300ms"/> cirka fem minutter, på et tema jeg kan snakke lenge om. 
-<break time="1.5s"/>
-La oss starte med hvordan applikasjonene våre jobber med data i dag, og se på selve fundamentet: Tilslutningsregisteret. Dette eier vi selv, og det inneholder bedrifter tilsluttet våre ordninger. Registeret har tre nivåer: Foretaket på toppen, altså selskapet med det juridiske ansvaret. Under ligger fakturagruppen vår, som vi sender fakturaer til. Nederst er virksomhetene: Arbeidsplassene, butikken, kontoret eller filialen de ansatte jobber i. Registeret vårt har tusenvis av store og små bedrifter, og alle disse utgjør tilslutningsregisteret. Dette registeret er grunnmuren i vår løsning, og alle andre moduler er avhengige av god kvalitet her. For oss er tilslutningsregisteret så viktig at noen kaller dette for "gullet".
-<break time="1.5s"/>
+<voice tempo="1.10">Puck</voice>
+<style>Les opp teksten som en foredragsholder i rolig tempo. Hold en naturlig pause på rundt 1,5 sekunder mellom hvert avsnitt.<style>
+Hallo! I denne presentasjonen skal vi vise hvordan vårt eget miljø med syntetiske data fungerer. Tiden vi har til rådighet er... cirka fem minutter, på et tema jeg kan snakke i timevis om.
+
+La oss starte med hvordan applikasjonene våre jobber med data i dag, og se på selve fundamentet: Tilslutningsregisteret. Dette eier vi selv, og det inneholder bedrifter tilsluttet våre ordninger. Registeret har tre nivåer: Foretaket på toppen, altså selskapet med det juridiske ansvaret. Under ligger fakturagruppen vår, som vi sender fakturaer til. Nederst er virksomhetene: Arbeidsplassene, butikken, kontoret eller filialen de ansatte jobber i. Registeret vårt har tusenvis av store og små bedrifter, og alle disse utgjør tilslutningsregisteret. Dette registeret ligger helt i bunnen av løsningen vår, og alle andre moduler er avhengige av god kvalitet her. For oss er tilslutningsregisteret så viktig at noen kaller dette for "gullet".
+
 Faktureringsprosessen er den prosessen som henter flest personopplysninger i løsningen. Hvert kvartal sender vi ut mange fakturaer, og det er tilslutningsregisteret som bestemmer hvem som får faktura fra oss. Når fakturaprosessen starter, henter den først alle virksomheter som skal faktureres. For hver virksomhet hentes en liste over alle ansatte, og for hver ansatt bestiller vi inntektsopplysninger. Vi henter også navn som skal brukes i vedlegget til fakturaen. Alle opplysningene henter vi fra eksterne kilder: Nav, Skatteetaten og Folkeregisteret. Når alle data er hentet og fakturaene er laget, sendes de ut til bedriftene.
-<break time="1.5s"/>
+
 Søknadsbehandlingen vår er den andre store konsumenten av personopplysninger. Ikke like mye data som faktureringen, men mer opplysninger per person. Her ser vi de samme kildene som for fakturering: Nav, Skatteetaten og Folkeregisteret. Søknadene mottar vi som regel elektronisk fra Nav. Vi henter arbeidsforhold, navn og adresse, og sjekker om søker har tilsvarende tariffbasert pensjon fra det offentlige. Til slutt sjekker vi om virksomheten personen er ansatt i, er tilsluttet. Dette kaller vi fase 1. Hvis alt er grønt i fase 1, går vi videre i behandlingen: Vi henter inntekter og arbeidsforhold i ansiennitetsperioden, samt ytelser fra Nav. Når vi har alt vi trenger, gjør vi vilkårsprøvingen vår og sender resultatet til Nav, som har siste ord i saken.
-<break time="1.5s"/>
+
 Som vi har sett, er løsningen vår helt avhengig av personopplysninger for å kunne gjøre jobben sin. Opplysningene sier noe om livene til ekte mennesker, og det er vårt ansvar å passe på dem. Samtidig ønsker vi å drive utvikling på systemene våre, teste ny funksjonalitet og lære opp nye kolleger. Hvordan gjør vi det på en trygg måte? Da må vi faktisk lage data: Syntetiske data som etterligner ekte data, og som gir mening for vår løsning.
-<break time="1.5s"/>
+
 Men hvordan går vi frem for å gjøre dette? Jo, vi fokuserer på de tre kildene til disse opplysningene: Nav, Skatteetaten og Folkeregisteret. Vi må kutte forbindelsen til disse kildene og erstatte dem med et trygt alternativ. Dette alternativet er vår nye, syntetiske database som etterligner kildene. Ved å konstruere oppdiktede mennesker, arbeidsforhold, inntekter og ytelser, kan vi lure løsningen vår til å tro at dette er ekte data.
-<break time="1.5s"/>
+
 Det virker kanskje rart at vi bygger syntetiske data som ikke tilhører vår løsning. Hvordan lager vi våre egne syntetiske data? Jo, vi bygger dem fra bunnen av. Vi starter med en helt tom database og flytter over en versjon av vårt tilslutningsregister, uten personopplysninger. Deretter må vi bare begynne å jobbe: Teste, utvikle og eksperimentere. Slik bygger vi vår egen syntetiske database. Jo mer vi bruker den, jo mer data får vi. I tillegg prøver vi å lage litt liv og røre for å etterligne de eksterne kildene. Hver natt kjører vi en jobb som emulerer livet selv: Noen personer starter sin arbeidskarriere, mens andre dør. Noen får lønnsforhøyelse, mens andre blir sagt opp. Noen flytter, og noen endrer fødselsnummer. I tillegg lager vi muligheten til å skreddersy syntetiske personer for å teste spesialtilfeller, eller teste integrasjoner mot andre syntetiske miljøer som Dolly og Tenor.
-<break time="1.5s"/>
+
 Ja, på overtid ser jeg, da blir det en kort oppsummering. Hva har vi oppnådd? Med syntetiske data har vi et trygt miljø for utvikling, test og opplæring. Hvis data kommer på avveie, vil det ikke gå ut over ekte personer. Applikasjonene våre ser ikke forskjell på ekte og syntetiske data, og fungerer helt likt i test og produksjon. Med syntetiske data kan vi etterligne situasjoner som ikke skjer så ofte: Hva om noen dør og bytter fødselsnummer samtidig? Vi kan også hente testpersoner fra Nav og Skatteetaten, noe som gjør det lettere å teste integrasjoner mot deres syntetiske miljøer.
-<break time="0.8s"/>
+
 Vi er ved veis ende. Tusen takk for oppmerksomheten, og beklager at vi gikk litt over tiden.
-</speak>

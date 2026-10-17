@@ -14,7 +14,7 @@ import { ramp, typewriter } from "../../style/anim";
 import { theme } from "../../style/theme";
 import { ENGINE, GOLD_SPARKLES, REGISTER, REGISTER_LEVEL, REGISTER_RIGHT, req, res, SOURCE_Y, SRC } from "../layout";
 
-export const PROBLEMET_FRAMES = 592;
+export const PROBLEMET_FRAMES = 562;
 
 // Tidslinje for scenen (lokale frames).
 const T = {
@@ -27,20 +27,19 @@ const T = {
   stempel: 235,
   tilbake: 275,
   mennesker: 310, // alle prikkene blir til mennesker
-  miljoer: 370, // utvikling, test, opplæring
-  piler: 400,
-  sperre: 420,
-  kryss: 440,
-  notat: 455,
-  konklusjon: 500,
-  ryddOpp: 565,
+  miljoer: 340, // utvikling, test, opplæring
+  piler: 370,
+  sperre: 390,
+  kryss: 410,
+  notat: 425,
+  konklusjon: 470,
+  ryddOpp: 535,
 };
 
-// Pauser: på personkortet, på «hver prikk er et menneske», og på sluttbildet.
+// Pauser: på personkortet og på sluttbildet.
 export const PROBLEMET_HOLDS: Hold[] = [
   { at: 270, frames: 2 * 30 }, // personkortet med «PERSONOPPLYSNINGER»-stempelet
-  { at: 362, frames: 3 * 30 }, // «Hver prikk er et ekte menneske»
-  { at: 560, frames: 4 * 30 }, // sluttbildet
+  { at: 530, frames: 8 * 30 }, // sluttbildet
 ];
 
 const SOURCES = [
@@ -102,10 +101,10 @@ export const Problemet: React.FC = () => {
           <Header title="Problemet" subtitle="Alle disse dataene handler om ekte mennesker" start={-20} />
 
           {/* Produksjonsbildet, slik vi kjenner det */}
-          <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[GREMLIN · PRODUKSJON]">
+          <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[FAGSYSTEM · PRODUKSJON]">
             <text x={ENGINE.x + ENGINE.w / 2} y={ENGINE.y + 52} textAnchor="middle" fontFamily={fonts.sans} fontSize={30}
               fontWeight={700} fill={colors.ink}>
-              Gremlin
+              Fagsystem
             </text>
             <Gear cx={910} cy={480} r={72} teeth={12} angle={live * 2} />
             <Gear cx={1005} cy={438} r={44} teeth={7} angle={-live * 2 * (12 / 7) + 12} color={colors.gridMinor} />

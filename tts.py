@@ -25,13 +25,16 @@ with exactly the requested silence. time="500ms" or "1.5s"; without time,
 strength="weak|medium|strong|x-strong" (0.25/0.5/1/2 s, medium is default).
 Other SSML tags are removed; Gemini's own tags such as [sigh] are passed on.
 
-A file can start with a voice header that sets voice and speed for that file:
+A file can start with headers (any order, both optional) that set voice, speed
+and reading direction for that file:
 
   <voice tempo="1.1">Alnilam</voice>
+  <style>Les opp teksten som en foredragsholder.</style>
   <speak> ... </speak>
 
-Both parts are optional (<voice tempo="1.05"></voice> keeps the default voice).
-Precedence: --voice/--speed on the command line, then the header, then VOICE/SPEED.
+<voice tempo="1.05"></voice> keeps the default voice; <style></style> means no
+direction. Precedence: --voice/--speed/--style on the command line, then the
+headers, then VOICE/SPEED/STYLE.
 
 Needs the environment variable VERTEX_API_KEY. Uses only the standard library;
 MP3 encoding uses ffmpeg (system ffmpeg, or the one bundled with Remotion).
@@ -167,16 +170,24 @@ def change_tempo(pcm: bytes, factor: float) -> bytes:
     return out[data + 8 :]
 
 
-VOICE_HEADER = re.compile(r"\s*<voice\b([^>]*)>(.*?)</voice>", re.IGNORECASE | re.DOTALL)
+HEADER = re.compile(r"\s*<(voice|style)\b([^>]*)>(.*?)</?\1\s*>", re.IGNORECASE | re.DOTALL)
 
 
-def parse_voice_header(source: str) -> tuple[str | None, float | None, str]:
-    """Split off a leading <voice tempo="1.1">Name</voice>. Returns voice, tempo, rest."""
-    match = VOICE_HEADER.match(source)
-    if not match:
-        return None, None, source
-    tempo = re.search(r'tempo\s*=\s*"([\d.]+)"', match.group(1))
-    return match.group(2).strip() or None, float(tempo.group(1)) if tempo else None, source[match.end():].strip()
+def parse_headers(source: str) -> tuple[str | None, float | None, str | None, str]:
+    """Split off leading <voice tempo="1.1">Name</voice> and <style>...</style>
+    (a closing <style> without the slash is accepted too).
+    Returns voice, tempo, style and the rest of the text."""
+    voice = tempo = style = None
+    while match := HEADER.match(source):
+        tag, attributes, content = match.group(1).lower(), match.group(2), match.group(3).strip()
+        if tag == "voice":
+            voice = content or None
+            found = re.search(r'tempo\s*=\s*"([\d.]+)"', attributes)
+            tempo = float(found.group(1)) if found else None
+        else:
+            style = " ".join(content.split())
+        source = source[match.end():]
+    return voice, tempo, style, source.strip()
 
 
 def speak(source: str, style: str, model: str, voice: str, language: str, speed: float) -> tuple[bytes, int]:
@@ -234,7 +245,7 @@ def main() -> None:
     parser.add_argument("--voice", help=f"overrides the file's <voice> header (default: {VOICE})")
     parser.add_argument("--model", default=MODEL)
     parser.add_argument("--language", default=LANGUAGE)
-    parser.add_argument("--style", default=STYLE, help="direction placed before the text (default: STYLE)")
+    parser.add_argument("--style", help="direction placed before the text, overrides the file's <style> header (default: STYLE)")
     parser.add_argument("--speed", type=float, help=f"tempo factor 0.5-2, overrides the file's header (default: {SPEED})")
     args = parser.parse_args()
 
@@ -254,13 +265,15 @@ def main() -> None:
         if out.exists() and not args.force:
             print(f"skip   {out.relative_to(ROOT)} (exists, use --force)")
             continue
-        file_voice, file_speed, source = parse_voice_header(text_path.read_text(encoding="utf-8").strip())
+        file_voice, file_speed, file_style, source = parse_headers(text_path.read_text(encoding="utf-8").strip())
         voice = args.voice or file_voice or VOICE
         speed = args.speed or file_speed or SPEED
         if not 0.5 <= speed <= 2.0:
             sys.exit(f"Speed {speed} in {text_path.name} is outside 0.5-2")
-        print(f"tts    {text_path.relative_to(ROOT)} (voice {voice}, tempo {speed:g}) ...", flush=True)
-        pcm, pauses = speak(source, args.style, args.model, voice, args.language, speed)
+        style = next(s for s in (args.style, file_style, STYLE) if s is not None)
+        origin = "--style" if args.style is not None else "file" if file_style is not None else "default"
+        print(f"tts    {text_path.relative_to(ROOT)} (voice {voice}, tempo {speed:g}, style {origin}) ...", flush=True)
+        pcm, pauses = speak(source, style, args.model, voice, args.language, speed)
         (write_mp3 if args.format == "mp3" else write_wav)(pcm, out)
         seconds = len(pcm) / (2 * SAMPLE_RATE)
         note = f", {pauses} pause{'s' if pauses != 1 else ''}" if pauses else ""

@@ -43,7 +43,7 @@ export const AFP_HOLDS: Hold[] = [
   { at: 200, frames: 5 * 30 },
   { at: 508, frames: 4 * 30 }, // fase 1 er krysset av («→ videre til fase 2»), før inntektene hentes
   { at: 765, frames: 3 * 30 }, // «INNVILGET», før vedtaket sendes til Nav
-  { at: 870, frames: 75 }, // sluttbildet, før arket viskes ut
+  { at: 870, frames: 15 }, // sluttbildet, før arket viskes ut
 ];
 
 const SOURCES = [
@@ -58,7 +58,7 @@ const REGISTER_ANSWER = { from: { x: REGISTER_RIGHT, y: 600 }, to: { x: ENGINE.x
 
 // Sjekklistene i Gremlin-boksen. `at` er når punktet hakes av.
 const FASE1 = [
-  { label: "Ikke offentlig AFP", at: T.fase1 + 15 },
+  { label: "Ikke offentlig", at: T.fase1 + 15 },
   { label: "Ansatt i medlemsbedrift", at: T.fase1 + 80 },
 ];
 const FASE2 = [
@@ -132,7 +132,7 @@ export const AfpSoknad: React.FC = () => {
           </text>
         </Box>
         {cardRow(326, "Eksempelveien 1, Bergen", T.person + 50)}
-        {cardRow(356, "Offentlig AFP: nei", T.offentligAfp + 50)}
+        {cardRow(356, "Offentlig: nei", T.offentligAfp + 50)}
         {cardRow(386, "Eksempelbedriften AS · Bergen", T.arbeid + 50)}
 
         </Wipe>
@@ -151,10 +151,10 @@ export const AfpSoknad: React.FC = () => {
         </text>
 
         {/* Gremlin: søknadsbehandlingen i to faser */}
-        <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[GREMLIN]">
+        <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[FAGSYSTEM]">
           <text x={ENGINE.x + ENGINE.w / 2} y={ENGINE.y + 50} textAnchor="middle" fontFamily={fonts.sans} fontSize={29}
             fontWeight={700} fill={colors.ink}>
-            AFP-søknadsbehandling
+            Søknadsbehandling
           </text>
           <Gear cx={1093} cy={497} r={28} teeth={10} angle={angle} />
           <Gear cx={1126} cy={469} r={17} teeth={6} angle={-angle * (10 / 6) + 15} color={colors.gridMinor} />
@@ -196,7 +196,7 @@ export const AfpSoknad: React.FC = () => {
         <Packet {...res(nav)} start={T.nyeSoknader + 28} duration={30} label="AFP-søknad" color={colors.accent} />
         <Packet {...req(SOURCE_Y.folkeregisteret)} start={T.person} duration={25} label="person?" />
         <Packet {...res(SOURCE_Y.folkeregisteret)} start={T.person + 28} duration={25} label="navn, adresse" color={colors.accent} />
-        <Packet {...req(nav)} start={T.offentligAfp} duration={25} label="offentlig AFP?" />
+        <Packet {...req(nav)} start={T.offentligAfp} duration={25} label="offentlig?" />
         <Packet {...res(nav)} start={T.offentligAfp + 28} duration={25} label="nei" color={colors.accent} />
         <Packet {...req(nav)} start={T.arbeid} duration={25} label="arbeidsforhold?" />
         <Packet {...res(nav)} start={T.arbeid + 28} duration={25} label="arbeidsforhold" color={colors.accent} />
@@ -224,7 +224,7 @@ export const AfpSoknad: React.FC = () => {
         <line x1={120} x2={760} y1={845} y2={845} stroke={colors.gridMajor} strokeWidth={stroke.thin} opacity={ramp(frame, T.nyeSoknader, 15)} />
         <Step n={1} x={135} y={875} label="nye søknader" start={T.nyeSoknader} activeUntil={T.person} />
         <Step n={2} x={135} y={907} label="personopplysninger" start={T.person} activeUntil={T.offentligAfp} />
-        <Step n={3} x={135} y={939} label="offentlig AFP?" start={T.offentligAfp} activeUntil={T.arbeid} />
+        <Step n={3} x={135} y={939} label="offentlig?" start={T.offentligAfp} activeUntil={T.arbeid} />
         <Step n={4} x={135} y={971} label="arbeidsforhold" start={T.arbeid} activeUntil={T.fase1} />
         <Step n={5} x={135} y={1003} label="fase 1" start={T.fase1} activeUntil={T.inntekt} />
         <Step n={6} x={460} y={875} label="inntekter" start={T.inntekt} activeUntil={T.historikk} />

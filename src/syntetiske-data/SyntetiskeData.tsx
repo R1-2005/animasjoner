@@ -1,7 +1,6 @@
 import { Audio } from "@remotion/media";
 import { Series, useCurrentFrame, staticFile } from "remotion";
-import { Gremlin, type GremlinKey } from "../components/Gremlin";
-import { type Hold, holdFrames, wallFrame, WithHolds } from "../components/Holds";
+import { type Hold, holdFrames, WithHolds } from "../components/Holds";
 import { Paper } from "../components/Paper";
 import { AFP_FRAMES, AFP_HOLDS, AfpSoknad } from "./scenes/AfpSoknad";
 import { FAKTURERING_FRAMES, FAKTURERING_HOLDS, Fakturering } from "./scenes/Fakturering";
@@ -20,7 +19,7 @@ const KapittelFakturering = () => <Kapittel n={2} title="Fakturering" subtitle="
 const KapittelAfp = () => <Kapittel n={3} title="Søknadsbehandling" subtitle="Én person søker avtalefestet pensjon" />;
 const KapittelProblemet = () => <Kapittel n={4} title="Problemet" subtitle="Alle disse dataene handler om ekte mennesker" />;
 const KapittelOppsummering = () => <Kapittel n={7} title="Oppsummering" subtitle="Dette har vi oppnådd med syntetiske data" synthetic />;
-const KapittelByttet = () => <Kapittel n={5} title="Erstatningen" subtitle="Samme Gremlin. Nye kilder." />;
+const KapittelByttet = () => <Kapittel n={5} title="Erstatningen" subtitle="Samme fagsystem. Nye kilder." />;
 const KapittelLivslop = () => <Kapittel n={6} title="Et levende testmiljø" subtitle="Fra tom database til syntetisk hverdag" />;
 
 // Scenene i rekkefølge. Lengde og pauser bestemmes av hver scene selv.
@@ -43,65 +42,12 @@ const SCENES = [
   { key: "oppsummering", id: "7 · Oppsummering", frames: OPPSUMMERING_FRAMES, holds: OPPSUMMERING_HOLDS, Component: Oppsummering },
 ];
 
-type SceneKey = (typeof SCENES)[number]["key"];
-
 const length = (s: (typeof SCENES)[number]) => s.frames + holdFrames(s.holds);
 
 // Startframe for hver scene i den ferdige filmen (inkludert pauser).
 const START = SCENES.reduce<number[]>((acc, s, i) => [...acc, i === 0 ? 0 : acc[i - 1] + length(SCENES[i - 1])], []);
 
-// Frame `local` i scenen `key`, oversatt til filmens tid.
-const at = (key: SceneKey, local: number) => {
-  const i = SCENES.findIndex((s) => s.key === key);
-  return START[i] + wallFrame(SCENES[i].holds, local);
-};
-
 export const SYNTETISKE_DATA_FRAMES = SCENES.reduce((sum, s) => sum + length(s), 0);
-
-const GREMLIN: GremlinKey[] = [
-  { at: 0, expression: "nøytral" },
-  { at: at("fundamentet", 60), expression: "spørrende", transition: "blink" },
-  { at: at("fundamentet", 640), expression: "overrasket", transition: "shake" },
-  { at: at("fundamentet", 750), expression: "glad", transition: "pop" },
-  { at: at("fundamentet", 960), expression: "overrasket", transition: "shake" },
-  { at: at("fundamentet", 997), expression: "triumferende", transition: "pop" },
-  { at: at("fakturering", 0), expression: "nøytral", transition: "blink" },
-  { at: at("fakturering", 175), expression: "overrasket", transition: "shake" },
-  { at: at("fakturering", 265), expression: "spørrende", transition: "blink" },
-  { at: at("fakturering", 345), expression: "triumferende", transition: "pop" },
-  { at: at("fakturering", 742), expression: "oppgitt", transition: "blink" },
-  { at: at("afp", 0), expression: "nøytral", transition: "blink" },
-  { at: at("afp", 145), expression: "spørrende", transition: "blink" },
-  { at: at("afp", 405), expression: "bekymret", transition: "blink" },
-  { at: at("afp", 492), expression: "glad", transition: "pop" },
-  { at: at("afp", 645), expression: "bekymret", transition: "blink" },
-  { at: at("afp", 737), expression: "triumferende", transition: "pop" },
-  { at: at("afp", 818), expression: "frustrert", transition: "blink" },
-  { at: at("problemet", 0), expression: "nøytral", transition: "blink" },
-  { at: at("problemet", 135), expression: "spørrende", transition: "blink" },
-  { at: at("problemet", 238), expression: "overrasket", transition: "shake" },
-  { at: at("problemet", 315), expression: "bekymret", transition: "blink" },
-  { at: at("problemet", 445), expression: "frustrert", transition: "shake" },
-  { at: at("problemet", 505), expression: "spørrende", transition: "blink" },
-  { at: at("byttet", 0), expression: "nøytral", transition: "blink" },
-  { at: at("byttet", 115), expression: "bekymret", transition: "blink" },
-  { at: at("byttet", 218), expression: "glad", transition: "pop" },
-  { at: at("byttet", 258), expression: "overrasket", transition: "shake" },
-  { at: at("byttet", 305), expression: "spørrende", transition: "blink" },
-  { at: at("byttet", 385), expression: "triumferende", transition: "pop" },
-  { at: at("livslop", 0), expression: "nøytral", transition: "blink" },
-  { at: at("livslop", 150), expression: "spørrende", transition: "blink" },
-  { at: at("livslop", 270), expression: "overrasket", transition: "shake" },
-  { at: at("livslop", 420), expression: "glad", transition: "pop" },
-  { at: at("livslop", 625), expression: "triumferende", transition: "pop" },
-  { at: at("oppsummering", 0), expression: "nøytral", transition: "blink" },
-  { at: at("oppsummering", 20), expression: "glad", transition: "pop" },
-  { at: at("oppsummering", 110), expression: "bekymret", transition: "blink" },
-  { at: at("oppsummering", 135), expression: "glad", transition: "pop" },
-  { at: at("oppsummering", 260), expression: "overrasket", transition: "shake" },
-  { at: at("oppsummering", 335), expression: "spørrende", transition: "blink" },
-  { at: at("oppsummering", 357), expression: "triumferende", transition: "pop" },
-];
 
 export const SyntetiskeData: React.FC = () => {
   const frame = useCurrentFrame();
@@ -125,13 +71,77 @@ export const SyntetiskeData: React.FC = () => {
             </Series.Sequence>
           ))}
         </Series>
-        <Gremlin x={1730} y={140} width={240} start={20} keys={GREMLIN} />
       </Paper>
       <Audio
-        src={staticFile("scene_10.mp3")}
-        durationInFrames={9638.64}
+        src={staticFile(
+          "Faktureringsprosessen_er_den_p_Suburb_Eleven_v4_01a14891-b121-7f18-af91-3b4d2715cf60.mp3"
+        )}
+        durationInFrames={1253.88}
         premountFor={30}
-        from={41}
+        from={2016}
+      />
+      <Audio
+        src={staticFile(
+          "La_oss_starte_med_hvordan_appl_Suburb_Eleven_v4_01a1488e-1ee4-7862-9e6e-d1c97adcbcbe.mp3"
+        )}
+        durationInFrames={1496.03}
+        premountFor={30}
+        from={437}
+      />
+      <Audio
+        src={staticFile(
+          "Hallo_I_denne_presentasjonen_s_Suburb_Eleven_v4_01a14890-ec9a-773e-b0d5-057179b218bb.mp3"
+        )}
+        durationInFrames={397.32}
+        premountFor={30}
+      />
+      <Audio
+        src={staticFile(
+          "Søknadsbehandlingen_vår_er_den_Suburb_Eleven_v4_01a14895-677e-7f8c-89e4-25b58b3c5e54.mp3"
+        )}
+        durationInFrames={1570.48}
+        premountFor={30}
+        from={3320}
+      />
+      <Audio
+        src={staticFile(
+          "Som_vi_har_sett_er_løsningen_v_Suburb_Eleven_v4_01a14897-bffb-7aa7-b03e-7acc88e23d9e.mp3"
+        )}
+        durationInFrames={905.93}
+        premountFor={30}
+        from={4966}
+      />
+      <Audio
+        src={staticFile(
+          "Men_hvordan_går_vi_frem_for_å_Suburb_Eleven_v4_01a149dc-53cf-71e8-b3c0-f631cd6e07b7.mp3"
+        )}
+        durationInFrames={949.03}
+        premountFor={30}
+        from={5941}
+      />
+      <Audio
+        src={staticFile(
+          "Da_folkens_er_vi_ved_veis_ende_Suburb_Eleven_v4_01a149e6-c901-7a41-af90-66bb8661c2cb.mp3"
+        )}
+        durationInFrames={246.07}
+        premountFor={30}
+        from={10186}
+      />
+      <Audio
+        src={staticFile(
+          "Ja_på_overtid_ser_jeg_da_blir_Suburb_Eleven_v4_01a149e3-a0dd-71fb-be9a-0c3da39d9e18.mp3"
+        )}
+        durationInFrames={1206.07}
+        premountFor={30}
+        from={8930}
+      />
+      <Audio
+        src={staticFile(
+          "Det_virker_kanskje_rart_at_vi_Suburb_Eleven_v4_01a149e2-e98f-74b0-af56-85a14a2a0b88.mp3"
+        )}
+        durationInFrames={1827.53}
+        premountFor={30}
+        from={6987}
       />
     </>
   );

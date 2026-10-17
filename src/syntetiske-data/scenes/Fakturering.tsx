@@ -51,7 +51,7 @@ const PILE = 14;
 // Pauser: når alle aktørene er tegnet, og på sluttbildet.
 export const FAKTURERING_HOLDS: Hold[] = [
   { at: 105, frames: 8 * 30 }, // elementene er tegnet opp, før flyten starter
-  { at: 800, frames: 8 * 30 }, // sluttbildet
+  { at: 800, frames: 5 * 30 }, // sluttbildet
 ];
 
 const SOURCES = [
@@ -81,7 +81,7 @@ export const Fakturering: React.FC = () => {
   // Tellerne går i samme tempo og stopper når strømmen deres stopper.
   const count = (start: number, end: number, to: number) =>
     interpolate(frame, [start, end], [0, to], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.quad) });
-  const virksomheter = count(T.steg1 + 40, STOPP.register, 17000);
+  const virksomheter = count(T.steg1 + 40, STOPP.register, 33000);
   const persons = count(T.steg2 + 20, STOPP.nav, 1000000);
   const calc = ramp(frame, T.steg4 + 10, 40, (t) => t);
   // Bunken vokser jevnt mens flyten går.
@@ -116,7 +116,7 @@ export const Fakturering: React.FC = () => {
         <Header title="Fakturering" subtitle="Hvert kvartal: fra register til faktura" start={-20} />
 
         {/* Gremlin: selve faktureringen */}
-        <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[GREMLIN]">
+        <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[FAGSYSTEM]">
           <text x={ENGINE.x + ENGINE.w / 2} y={ENGINE.y + 52} textAnchor="middle" fontFamily={fonts.sans} fontSize={30}
             fontWeight={700} fill={colors.ink}>
             Kvartalsfakturering
@@ -160,7 +160,7 @@ export const Fakturering: React.FC = () => {
         <Step n={6} x={590} y={742} label="faktura + vedlegg" start={T.steg6} />
 
         {/* Data på vei */}
-        <Packet {...REG_LINE} start={T.steg1 + 5} duration={35} label="17 000 virksomheter" />
+        <Packet {...REG_LINE} start={T.steg1 + 5} duration={35} label="33 000 virksomheter" />
         <Stream {...REG_LINE} start={T.steg1 + 40} duration={STOPP.register - T.steg1 - 40} count={32} color={colors.highlight} />
         {SOURCES.map((src, i) => {
           const begin = [T.steg2, T.steg3, T.steg5][i];

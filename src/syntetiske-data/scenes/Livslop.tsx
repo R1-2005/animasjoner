@@ -57,7 +57,7 @@ const EVENT_LIFE = 44;
 
 // Arkivbunkene: hvor mange dager det tar før det kommer et nytt ark i bunken.
 const PILES = [
-  { title: "AFP-SAK", label: "AFP-saker", days: 70, accent: theme.colors.synthetic },
+  { title: "SØKNAD", label: "Søknader", days: 70, accent: theme.colors.synthetic },
   { title: "FAKTURA", label: "Fakturaer", days: 91, accent: theme.colors.accent },
   { title: "BREV", label: "Brev", days: 55, accent: theme.colors.inkSoft },
 ];
@@ -137,10 +137,10 @@ export const Livslop: React.FC = () => {
 
           <Header title="Et levende testmiljø" subtitle="Fra tom database til syntetisk hverdag" start={-20} />
 
-          <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[GREMLIN · TESTMILJØ]">
+          <Box x={ENGINE.x} y={ENGINE.y} w={ENGINE.w} h={ENGINE.h} start={T.boks} tag="[FAGSYSTEM · TESTMILJØ]">
             <text x={ENGINE.x + ENGINE.w / 2} y={ENGINE.y + 52} textAnchor="middle" fontFamily={fonts.sans} fontSize={30}
               fontWeight={700} fill={colors.ink}>
-              Gremlin
+              Fagsystem
             </text>
             <Gear cx={910} cy={480} r={72} teeth={12} angle={live * (running ? 2 : 0.5)} />
             <Gear cx={1005} cy={438} r={44} teeth={7} angle={-live * (running ? 2 : 0.5) * (12 / 7) + 12} color={colors.gridMinor} />

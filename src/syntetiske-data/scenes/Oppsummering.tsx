@@ -11,10 +11,11 @@ export const OPPSUMMERING_FRAMES = 425;
 const T = { punkt1: 15, punkt2: 90, punkt3: 165, punkt4: 240, punkt5: 315, stempel: 355 };
 
 export const OPPSUMMERING_HOLDS: Hold[] = [
-  { at: 80, frames: 4 * 30 }, // etter «Trygt miljø …»
-  { at: 155, frames: 4 * 30 }, // etter «Reduserer konsekvensen …»
+  { at: 10, frames: 3 * 30 }, // før første poeng
+  { at: 80, frames: 2 * 30 }, // etter «Trygt miljø …»
+  { at: 155, frames: 2 * 30 }, // etter «Reduserer konsekvensen …»
   { at: 230, frames: 5 * 30 }, // etter «Applikasjonene er identiske …»
-  { at: 305, frames: 9 * 30 }, // etter «Simulerer edge-cases …»
+  { at: 305, frames: 7 * 30 }, // etter «Simulerer edge-cases …»
   { at: 415, frames: 20 * 30 }, // sluttbildet, så filmen ikke slutter for brått
 ];
 
@@ -115,7 +116,7 @@ export const Oppsummering: React.FC = () => {
             <text x={X + 315} y={ROW_Y[2] + 100} fontFamily={fonts.mono} fontSize={18} fill={colors.synthetic}>syntetisk</text>
             <text x={X + 470} y={ROW_Y[2] + 74} fontFamily={fonts.mono} fontSize={24} fontWeight={600} fill={colors.highlight}
               opacity={ramp(frame, T.punkt3 + 45, 15)}>
-              — Gremlin merker ingen forskjell.
+              — Fagsystemet merker ingen forskjell.
             </text>
           </g>
         ))}
