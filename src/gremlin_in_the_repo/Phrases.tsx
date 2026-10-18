@@ -6,7 +6,8 @@ import { fonts, night } from "./look";
 // Én frase vises om gangen; den forrige flyr opp og forsvinner når neste begynner.
 
 export type PhraseWord = { text: string; at: number; color?: string };
-export type Phrase = { lines: PhraseWord[][]; size?: number };
+// until: når frasen forsvinner (standard: når neste frase begynner).
+export type Phrase = { lines: PhraseWord[][]; size?: number; until?: number };
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const first = (p: Phrase) => p.lines[0][0].at;
@@ -17,7 +18,7 @@ export const Phrases: React.FC<{ t: number; phrases: Phrase[]; x: number; y: num
     <>
       {phrases.map((phrase, i) => {
         const start = first(phrase);
-        const end = i + 1 < phrases.length ? first(phrases[i + 1]) : Infinity;
+        const end = phrase.until ?? (i + 1 < phrases.length ? first(phrases[i + 1]) : Infinity);
         if (t < start || t > end + 0.15) return null;
         const out = Number.isFinite(end) ? interpolate(t, [end, end + 0.12], [0, 1], clamp) : 0;
         const size = phrase.size ?? 104;

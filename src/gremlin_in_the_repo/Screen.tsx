@@ -220,11 +220,12 @@ const CPS = 62; // tegn per sekund: utvikleren skriver fort
 
 // Visual Studio: koden skrives tegn for tegn på nederste linje, og alt skyves opp ved linjeskift.
 // `written` står der allerede; `typed` skrives fra tidspunktet `from`.
-export const VisualStudio: React.FC<{ t: number; from: number; written: string[]; typed: string[] }> = ({
+export const VisualStudio: React.FC<{ t: number; from: number; written: string[]; typed: string[]; file?: string }> = ({
   t,
   from,
   written,
   typed,
+  file = "Kalkulator.cs",
 }) => {
   const lines = [...written, ...typed];
   // Starttiden flyttes bakover så de ferdigskrevne linjene allerede er skrevet ved `from`.
@@ -244,7 +245,7 @@ export const VisualStudio: React.FC<{ t: number; from: number; written: string[]
   const top = view - LINE - (current - 1 + roll) * LINE;
   const cursorOn = Math.floor(t * 3) % 2 === 0 || shown < lines[current].length;
   return (
-    <Window app="vs" title="Kalkulator.cs — Gremlin.Core — Microsoft Visual Studio">
+    <Window app="vs" title={`${file} — Gremlin.Core — Microsoft Visual Studio`}>
       <div style={{ position: "absolute", inset: 0, fontFamily: fonts.mono, fontSize: 28, lineHeight: `${LINE}px` }}>
         <div style={{ position: "absolute", top, left: 0, right: 0 }}>
           {lines.slice(0, current + 1).map((line, i) => (

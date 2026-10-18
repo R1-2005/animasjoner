@@ -1,25 +1,12 @@
 import { Audio } from "@remotion/media";
-import { AbsoluteFill, Easing, interpolate, staticFile } from "remotion";
-import { beatPos, kick, snare, SongOffset, useSongTime, word } from "./beat";
+import { Easing, interpolate, staticFile } from "remotion";
+import { beatPos, SongOffset, useSongTime, word } from "./beat";
 import { Boom, boomShake } from "./Boom";
 import { Arms, GremlinFigure, mixArms, POSES } from "./GremlinFigure";
-import {
-  BackDeskFront,
-  BACK_MONITORS,
-  BackDeskTop,
-  BackMonitors,
-  DESK_TOP,
-  Dev,
-  EmptyChairs,
-  MainDesk,
-  MonitorFrame,
-  Rack,
-  Room,
-  SCREEN_CENTER,
-  Vignette,
-} from "./Office";
+import { BACK_MONITORS, SCREEN_CENTER } from "./Office";
 import { Phrase, Phrases } from "./Phrases";
-import { App, Desktop, DevOpsGraph, PowerShell, Taskbar, Toast, VisualStudio } from "./Screen";
+import { App, DevOpsGraph, PowerShell, Taskbar, Toast, VisualStudio } from "./Screen";
+import { GREMLIN_DIM, Stage } from "./Stage";
 import { night } from "./look";
 import { TIMING } from "./timing";
 
@@ -93,8 +80,6 @@ const G = {
   exit: [T.merges[0] - 0.6, T.merges[0] - 0.1] as const, // løper ut bak den store skjermen
   approved: FORCE + 1.1, // «Gremlin approved this push.»
 };
-// Gremlin er en skygge i bakgrunnen: litt gjennomsiktig, så han ikke stjeler fokus fra skjermen.
-const GREMLIN_DIM = 0.7;
 const AT_RACK = 255;
 const AT_MONITOR = BACK_MONITORS[1].x + BACK_MONITORS[1].w / 2;
 const OFF_LEFT = -200;
@@ -174,7 +159,6 @@ const PHRASES: Phrase[] = [
 
 const Scene: React.FC = () => {
   const t = useSongTime();
-  const k = kick(t);
   const shake = boomShake(t, T.boom);
 
   const gremlin = gremlinAt(t);
@@ -222,41 +206,32 @@ const Scene: React.FC = () => {
   const teamsBadge = t < TEAMS.at ? "3" : t < T.explodes ? "4" : "99+";
 
   return (
-    <AbsoluteFill style={{ background: night.room, overflow: "hidden" }}>
-      <AbsoluteFill style={{ transform: `translate(${shake.x}px, ${shake.y + bonk * 6}px) scale(${1 + 0.008 * k})` }}>
-        <Room glow={1 + 0.25 * snare(t)} />
-        <Rack t={t} chaos={interpolate(t, [G.yank, G.yank + 0.2], [0, 1], clamp)} />
-        <GremlinFigure width={220} opacity={GREMLIN_DIM} {...gremlin} />
-        <BackDeskTop />
-        <BackMonitors t={t} glitch={[0, interpolate(t, [G.tamper, G.tamper + 0.2], [0, 1], clamp)]} />
-        <BackDeskFront />
-        <EmptyChairs spin={[spin(G.enter[0] + 0.3), spin(G.scurry[0] + 0.3)]} />
-        {POP_INS.map((p) => (
-          <PopIn key={p.at} t={t} {...p} />
-        ))}
-        <MonitorFrame />
-        <Desktop>
+    <Stage
+      t={t}
+      shake={{ x: shake.x, y: shake.y + bonk * 6 }}
+      rackChaos={interpolate(t, [G.yank, G.yank + 0.2], [0, 1], clamp)}
+      gremlin={{ width: 220, ...gremlin }}
+      backGlitch={[0, interpolate(t, [G.tamper, G.tamper + 0.2], [0, 1], clamp)]}
+      chairSpin={[spin(G.enter[0] + 0.3), spin(G.scurry[0] + 0.3)]}
+      popIns={POP_INS.map((p) => (
+        <PopIn key={p.at} t={t} {...p} />
+      ))}
+      desktop={
+        <>
           {screen}
           <Taskbar active={active} badges={{ outlook: "42", teams: teamsBadge, jira: "7" }} />
           <Toast t={t} {...ALERT} app="devops" from="Azure Monitor" title="Alert: prod-gremlin-01" body="CPU 100 % · minne 99 % · stemning 0 %" />
           <Toast t={t} {...TEAMS} app="teams" from="Microsoft Teams" title="Kari Nordmann" body="Har du 5 min? Bare en liten ting :)" />
-        </Desktop>
-        <MainDesk steam={t} />
-        <Dev
-          id="dev"
-          cx={SCREEN_CENTER.x + 80}
-          top={DESK_TOP - 95}
-          bob={k * 6 + jolt}
-          sway={coding ? Math.sin(t * 9) * 2.5 : 0}
-          vein={vein}
-          grawlix={grawlix}
-          slump={slump}
-        />
-      </AbsoluteFill>
-      <Phrases t={t} phrases={PHRASES} x={60} y={110} />
-      <Boom t={t} at={T.boom} x={SCREEN_CENTER.x} y={SCREEN_CENTER.y} />
-      <Vignette />
-    </AbsoluteFill>
+        </>
+      }
+      dev={{ bob: jolt, sway: coding ? Math.sin(t * 9) * 2.5 : 0, vein, grawlix, slump }}
+      overlay={
+        <>
+          <Phrases t={t} phrases={PHRASES} x={60} y={110} />
+          <Boom t={t} at={T.boom} x={SCREEN_CENTER.x} y={SCREEN_CENTER.y} />
+        </>
+      }
+    />
   );
 };
 
