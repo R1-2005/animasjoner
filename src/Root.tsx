@@ -1,5 +1,6 @@
 import { Composition } from "remotion";
 import { GREMLIN_IN_THE_REPO_FRAMES, GremlinInTheRepo } from "./gremlin_in_the_repo/GremlinInTheRepo";
+import { STYLE_TEST_FRAMES, StyleTest } from "./gremlin_in_the_repo/StyleTest";
 import { SYNTETISKE_DATA_FRAMES, SyntetiskeData } from "./syntetiske-data/SyntetiskeData";
 import { TEKNOLOGITIMEN_FRAMES, Teknologitimen } from "./teknologitimen/Teknologitimen";
 import { TestAnimasjon, testAnimasjonSchema } from "./TestAnimasjon";
@@ -40,6 +41,14 @@ export const RemotionRoot: React.FC = () => {
         id="GremlinInTheRepo"
         component={GremlinInTheRepo}
         durationInFrames={GREMLIN_IN_THE_REPO_FRAMES}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="GremlinInTheRepoStiltest"
+        component={StyleTest}
+        durationInFrames={STYLE_TEST_FRAMES}
         fps={30}
         width={1920}
         height={1080}
