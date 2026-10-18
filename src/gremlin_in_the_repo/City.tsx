@@ -69,6 +69,9 @@ export const TARGET = iso(TOWER.i + TOWER.w, TOWER.j + TOWER.d / 2, towerTop * 0
 
 type Shape = {
   key: number;
+  // Midten av bygget i rutenettet (for strømbruddet som sprer seg fra tårnet).
+  ci: number;
+  cj: number;
   isTower: boolean;
   roof: string;
   left: string;
@@ -80,6 +83,8 @@ const SHAPES: Shape[] = BOXES.map((b) => {
   const { i, j, w, d, h } = b;
   return {
     key: b.key,
+    ci: i + w / 2,
+    cj: j + d / 2,
     isTower: b === TOWER,
     roof: pts(iso(i, j, h), iso(i + w, j, h), iso(i + w, j + d, h), iso(i, j + d, h)),
     left: pts(iso(i, j + d, 0), iso(i + w, j + d, 0), iso(i + w, j + d, h), iso(i, j + d, h)),
@@ -112,9 +117,15 @@ type Props = {
   sign: number;
   topFloor: number;
   eyes: number;
+  // 0..1: strømbruddet sprer seg fra tårnet til hele kvartalet er mørkt.
+  dark?: number;
+  // 0..1: et stearinlys i vinduet på toppetasjen.
+  candle?: number;
 };
 
-export const City: React.FC<Props> = ({ t, focus, zoom, sign, topFloor, eyes }) => {
+const TOWER_CENTER = { i: TOWER.i + TOWER.w / 2, j: TOWER.j + TOWER.d / 2 };
+
+export const City: React.FC<Props> = ({ t, focus, zoom, sign, topFloor, eyes, dark = 0, candle = 0 }) => {
   const cars = CARS.map((c) => {
     const u = (((c.offset + t * c.speed) % N) + N) % N;
     const p = c.alongX ? iso(u, c.street, 0) : iso(c.street, u, 0);
@@ -172,6 +183,8 @@ export const City: React.FC<Props> = ({ t, focus, zoom, sign, topFloor, eyes }) 
                   <polygon points={item.s.right} fill="#0C1322" />
                   <polygon points={item.s.roof} fill="#1B2642" stroke="#2A3858" strokeWidth={1} vectorEffect="non-scaling-stroke" />
                   {item.s.windows.map((w, n) => {
+                    const off = dark > 0 && Math.hypot(item.s.ci - TOWER_CENTER.i, item.s.cj - TOWER_CENTER.j) < dark * 9;
+                    if (off) return <polygon key={n} points={w.points} fill="#0B1220" />;
                     const lit = item.s.isTower && w.color === night.glow ? 0.35 + 0.65 * topFloor : w.opacity;
                     return <polygon key={n} points={w.points} fill={w.color} opacity={lit} />;
                   })}
@@ -195,6 +208,12 @@ export const City: React.FC<Props> = ({ t, focus, zoom, sign, topFloor, eyes }) 
               GREMLIN
             </text>
           </g>
+          {candle > 0 && (
+            <g opacity={candle * (0.75 + 0.25 * Math.sin(t * 23) * Math.sin(t * 7))}>
+              <circle cx={TARGET.x} cy={TARGET.y} r={14} fill="#FFB347" opacity={0.35} filter="url(#city-glow)" />
+              <circle cx={TARGET.x} cy={TARGET.y + 1} r={2.4} fill="#FFE27A" />
+            </g>
+          )}
           {eyes > 0 && (
             <g filter="url(#city-glow)" opacity={eyes}>
               <ellipse cx={eyePos.x - 6} cy={eyePos.y - 2} rx={4.5} ry={3 * eyes} fill={night.eyes} />
@@ -206,6 +225,16 @@ export const City: React.FC<Props> = ({ t, focus, zoom, sign, topFloor, eyes }) 
       </svg>
     </AbsoluteFill>
   );
+};
+
+// Kameraet som funksjon av hvor langt inn det har dykket: 0 = byen fra luften, 1 = inne i vinduet.
+export const cityView = (p: number) => {
+  const start = { x: 960, y: 560 };
+  const eased = p * p * p;
+  const drift = 1.06;
+  const zoom = drift * Math.pow(110 / drift, eased);
+  const k = Math.min(1, eased * 2.2 + 0.12);
+  return { zoom, focus: { x: start.x + (TARGET.x - start.x) * k, y: start.y + (TARGET.y - start.y) * k } };
 };
 
 // Kameraet for introen: rolig drift, så et dykk som akselererer inn i TARGET-vinduet.

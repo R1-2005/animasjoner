@@ -3,9 +3,11 @@ import { AbsoluteFill, staticFile } from "remotion";
 import { useSongTime } from "./beat";
 import { fonts, night } from "./look";
 import { Taskbar, VisualStudio } from "./Screen";
-import { CHORUS1_END, Chorus1 } from "./sections/Chorus1";
+import { BRIDGE_END, Bridge } from "./sections/Bridge";
+import { CHORUSES } from "./sections/Chorus";
 import { INTRO_END, Intro } from "./sections/Intro";
 import { VERSE1_END, Verse1 } from "./sections/Verse1";
+import { VERSE2_END, Verse2 } from "./sections/Verse2";
 import { Stage } from "./Stage";
 import { TIMING } from "./timing";
 
@@ -42,11 +44,19 @@ const Sketch: React.FC<{ t: number }> = ({ t }) => {
   );
 };
 
+const Chorus1 = CHORUSES[1].Chorus;
+const Chorus2 = CHORUSES[2].Chorus;
+const Chorus3 = CHORUSES[3].Chorus;
+
 const Video: React.FC = () => {
   const t = useSongTime();
   if (t < INTRO_END) return <Intro t={t} />;
   if (t < VERSE1_END) return <Verse1 t={t} />;
-  if (t < CHORUS1_END) return <Chorus1 t={t} />;
+  if (t < CHORUSES[1].end) return <Chorus1 t={t} />;
+  if (t < VERSE2_END) return <Verse2 t={t} />;
+  if (t < CHORUSES[2].end) return <Chorus2 t={t} />;
+  if (t < BRIDGE_END) return <Bridge t={t} />;
+  if (t < CHORUSES[3].end) return <Chorus3 t={t} />;
   return <Sketch t={t} />;
 };
 

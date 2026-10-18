@@ -92,12 +92,14 @@ const PINNED: App[] = ["vs", "outlook", "teams", "slack", "jira", "confluence", 
 
 // Oppgavelinja: Start, appene, klokka. badges = tallet i det røde merket per app; offline = Wi-Fi nede;
 // focus = «Ikke forstyrr» er på (måne ved klokka).
-export const Taskbar: React.FC<{ active: App; badges?: Partial<Record<App, string>>; offline?: boolean; focus?: boolean }> = ({
-  active,
-  badges = {},
-  offline = false,
-  focus = false,
-}) => (
+export const Taskbar: React.FC<{
+  active: App;
+  badges?: Partial<Record<App, string>>;
+  offline?: boolean;
+  focus?: boolean;
+  clock?: string;
+  date?: string;
+}> = ({ active, badges = {}, offline = false, focus = false, clock = "21:00", date = "18.10.2026" }) => (
   <div
     style={{
       position: "absolute",
@@ -168,9 +170,9 @@ export const Taskbar: React.FC<{ active: App; badges?: Partial<Record<App, strin
       {offline && <path d="M 19 11 L 29 21 M 29 11 L 19 21" stroke="#FF5B5B" strokeWidth={3.5} />}
     </svg>
     <div style={{ position: "absolute", right: 18, fontFamily: ui, fontSize: 16, color: win.text, textAlign: "right", lineHeight: 1.25 }}>
-      21:00
+      {clock}
       <br />
-      <span style={{ color: win.dim }}>18.10.2026</span>
+      <span style={{ color: win.dim }}>{date}</span>
     </div>
   </div>
 );

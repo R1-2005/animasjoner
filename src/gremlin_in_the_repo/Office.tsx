@@ -33,8 +33,8 @@ const Svg: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </AbsoluteFill>
 );
 
-// Bakvegg, vindu med persienner og skjermlys på veggen.
-export const Room: React.FC<{ glow: number }> = ({ glow }) => (
+// Bakvegg, vindu med persienner og skjermlys på veggen. day (0..1): dagslys i vinduet (tidshopp).
+export const Room: React.FC<{ glow: number; day?: number }> = ({ glow, day = 0 }) => (
   <Svg>
     <defs>
       <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
@@ -55,6 +55,8 @@ export const Room: React.FC<{ glow: number }> = ({ glow }) => (
     <rect width={1920} height={1080} fill="url(#wall)" />
     {/* Vindu i høyre kant, persienner som slipper inn måneskinn. */}
     <rect x={1790} y={70} width={300} height={380} fill="url(#moon)" />
+    {day > 0 && <rect x={1790} y={70} width={300} height={380} fill="#FFD98A" opacity={0.75 * day} />}
+    {day > 0 && <rect x={1200} y={0} width={720} height={1080} fill="#FFD98A" opacity={0.06 * day} />}
     {Array.from({ length: 14 }, (_, i) => (
       <rect key={i} x={1790} y={70 + i * 27 + 14} width={300} height={13} fill={night.room} opacity={0.85} />
     ))}
@@ -64,7 +66,7 @@ export const Room: React.FC<{ glow: number }> = ({ glow }) => (
 );
 
 // Serverskapet: lysdioder som blinker rolig grønt, eller rødt og hektisk når Gremlin har vært der.
-export const Rack: React.FC<{ t: number; chaos: number }> = ({ t, chaos }) => {
+export const Rack: React.FC<{ t: number; chaos: number; off?: boolean }> = ({ t, chaos, off = false }) => {
   const rate = chaos > 0 ? 14 : 3;
   const tick = Math.floor(t * rate);
   return (
@@ -84,7 +86,7 @@ export const Rack: React.FC<{ t: number; chaos: number }> = ({ t, chaos }) => {
                 cy={RACK.y + 29 + row * 34}
                 r={3.5}
                 fill={red ? night.bug : night.ok}
-                opacity={on ? 1 : 0.15}
+                opacity={off ? 0 : on ? 1 : 0.15}
               />
             );
           })}
@@ -101,10 +103,11 @@ export const BackDeskTop: React.FC = () => (
 );
 
 // De små skjermene på pultene bak. glitch (0..1) per skjerm: rødt bildestøy.
-export const BackMonitors: React.FC<{ t: number; glitch: number[]; glitchColor?: string[] }> = ({
+export const BackMonitors: React.FC<{ t: number; glitch: number[]; glitchColor?: string[]; off?: boolean }> = ({
   t,
   glitch,
   glitchColor = [],
+  off = false,
 }) => (
   <Svg>
     {BACK_MONITORS.map((m, i) => {
@@ -113,7 +116,7 @@ export const BackMonitors: React.FC<{ t: number; glitch: number[]; glitchColor?:
       return (
         <g key={i}>
           <rect x={m.x} y={m.y} width={m.w} height={m.h} rx={6} fill={night.black} />
-          <rect x={m.x + 7} y={m.y + 7} width={m.w - 14} height={m.h - 14} fill={m.color} opacity={0.16 + 0.04 * Math.sin(t * 7 + i)} />
+          <rect x={m.x + 7} y={m.y + 7} width={m.w - 14} height={m.h - 14} fill={m.color} opacity={off ? 0 : 0.16 + 0.04 * Math.sin(t * 7 + i)} />
           {g > 0 &&
             Array.from({ length: 7 }, (_, k) => (
               <rect
@@ -242,7 +245,8 @@ export const MainDesk: React.FC<{ steam: number; mug?: Mug }> = ({ steam, mug = 
 
 // Utvikler sett bakfra: hettegenser og hodetelefoner, med skjermlys i kanten.
 // Følelser vises tegneserieaktig: sway (hodet vipper litt mens han koder), vein (rødt sinne-merke),
-// grawlix (bannesky «#@$%!») og slump (0..1: hodet i en bue ned i pulten mens kroppen står stille).
+// grawlix (bannesky «#@$%!»), slump (0..1: hodet i en bue ned i pulten mens kroppen står stille),
+// hands (0..1: armene opp, «hands off keyboard») og pray (0..1: hendene samlet over hodet).
 export const Dev: React.FC<{
   cx: number;
   top: number;
@@ -253,7 +257,9 @@ export const Dev: React.FC<{
   slump?: number;
   vein?: number;
   grawlix?: number;
-}> = ({ cx, top, id, scale = 1, bob = 0, sway = 0, slump = 0, vein = 0, grawlix = 0 }) => {
+  hands?: number;
+  pray?: number;
+}> = ({ cx, top, id, scale = 1, bob = 0, sway = 0, slump = 0, vein = 0, grawlix = 0, hands = 0, pray = 0 }) => {
   const hood = "M -118 190 C -132 95 -96 0 0 0 C 96 0 132 95 118 190 Z";
   const body = "M -310 1200 L -310 500 C -310 330 -250 250 -120 205 L 120 205 C 250 250 310 330 310 500 L 310 1200 Z";
   const band = "M -122 120 C -122 20 -60 -14 0 -14 C 60 -14 122 20 122 120";
@@ -293,6 +299,23 @@ export const Dev: React.FC<{
         </g>
         <path d={body} fill={night.black} />
         <path d={body} fill="none" stroke={`url(#rim-${id})`} strokeWidth={4} filter={`url(#soft-${id})`} />
+        {hands > 0 &&
+          [-1, 1].map((side) => {
+            // Fra skulderen opp til hånda; ved bønn møtes hendene over hodet.
+            const up = { x: side * (175 - 150 * pray), y: -40 - 30 * pray };
+            const hx = side * 230 + (up.x - side * 230) * hands;
+            const hy = 330 + (up.y - 330) * hands + bob;
+            const ex = side * (260 - 20 * pray);
+            const ey = (330 + hy) / 2 + 20;
+            const arm = `M ${side * 200} 300 Q ${ex} ${ey} ${hx} ${hy}`;
+            return (
+              <g key={side}>
+                <path d={arm} fill="none" stroke="#1A2133" strokeWidth={58} strokeLinecap="round" />
+                <path d={arm} fill="none" stroke={night.black} strokeWidth={50} strokeLinecap="round" />
+                <circle cx={hx} cy={hy} r={32} fill={night.black} stroke={night.glow} strokeOpacity={0.35} strokeWidth={3} />
+              </g>
+            );
+          })}
         {grawlix > 0 && (
           <g transform={`translate(-330 75) scale(${grawlix * 0.85}) rotate(${Math.sin(grawlix * 30) * 3})`}>
             <path
@@ -310,6 +333,37 @@ export const Dev: React.FC<{
     </Svg>
   );
 };
+
+// «Digital mob»: hettekledde lagkamerater som reiser seg bak pultene med knyttnevene i været.
+const MOB = [
+  { x: 125, s: 0.9 },
+  { x: 395, s: 1 },
+  { x: 560, s: 0.85 },
+];
+export const Mob: React.FC<{ t: number; rise: number }> = ({ t, rise }) =>
+  rise <= 0 ? null : (
+    <Svg>
+      {MOB.map((m, i) => {
+        const pump = Math.abs(Math.sin(t * 4.8 + i));
+        const y = 640 - 240 * rise * m.s + pump * 10 * rise;
+        return (
+          <g key={i} transform={`translate(${m.x} ${y}) scale(${m.s * 0.55})`}>
+            {[-1, 1].map((side) => (
+              <g key={side}>
+                <path d={`M ${side * 95} 210 Q ${side * 150} 120 ${side * (120 + pump * 20)} ${-10 - pump * 40}`} fill="none" stroke={night.black} strokeWidth={46} strokeLinecap="round" />
+                <circle cx={side * (120 + pump * 20)} cy={-20 - pump * 40} r={30} fill={night.black} />
+              </g>
+            ))}
+            <path d="M -200 420 C -200 260 -150 210 -90 190 L 90 190 C 150 210 200 260 200 420 Z" fill={night.black} />
+            <path d="M -105 190 C -118 90 -86 0 0 0 C 86 0 118 90 105 190 Z" fill={night.black} />
+            <path d="M -105 190 C -118 90 -86 0 0 0 C 86 0 118 90 105 190" fill="none" stroke={night.glow} strokeOpacity={0.35} strokeWidth={5} />
+            <ellipse cx={-30} cy={110} rx={12} ry={7} fill={night.glow} opacity={0.8} />
+            <ellipse cx={30} cy={110} rx={12} ry={7} fill={night.glow} opacity={0.8} />
+          </g>
+        );
+      })}
+    </Svg>
+  );
 
 export const Vignette: React.FC = () => (
   <AbsoluteFill
