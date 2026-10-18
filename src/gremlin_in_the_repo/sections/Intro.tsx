@@ -1,6 +1,7 @@
 import { AbsoluteFill, interpolate } from "remotion";
 import { bar, word } from "../beat";
 import { City, cityCamera } from "../City";
+import { Notes } from "../Office";
 import { Phrase, Phrases } from "../Phrases";
 import { Taskbar, Toast, VisualStudio } from "../Screen";
 import { Stage } from "../Stage";
@@ -101,6 +102,8 @@ export const Intro: React.FC<{ t: number }> = ({ t }) => {
             }
             dev={{ sway: Math.sin(t * 9) * 2.5, vein: pop(MAIL.at + 0.3, MAIL.until) * (1 + 0.12 * Math.sin(t * 25)) }}
           />
+          {/* Fornøyd koding med musikk på ørene, til mailen fra ledelsen kommer. */}
+          <Notes t={t} amount={interpolate(t, [LAND, LAND + 0.4, MAIL.at - 0.1, MAIL.at + 0.3], [0, 1, 1, 0], clamp)} />
         </AbsoluteFill>
       )}
       <Phrases t={t} phrases={PHRASES} x={60} y={110} />

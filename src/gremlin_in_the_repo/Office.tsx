@@ -243,10 +243,41 @@ export const MainDesk: React.FC<{ steam: number; mug?: Mug }> = ({ steam, mug = 
   );
 };
 
+// Knyttneve i samme tegneseriestil som referansen (public/gremlin_in_the_repo/hands.jpg), men dempet så
+// den passer skyggestilen: hud i halvmørket med rødlig skygge, tykk nesten svart kontur, fingrene som fire
+// runde pølser øverst og tommelen på innsiden. Tegnet rundt (0, 0); hettegenserens mansjett nederst.
+const SKIN = "#7A665E";
+const SKIN_SHADE = "#5F4A47";
+const INK = "#140F0D";
+const Fist: React.FC = () => (
+  <>
+    <rect x={-34} y={26} width={68} height={30} rx={10} fill="#1A2133" stroke={night.glow} strokeOpacity={0.35} strokeWidth={3} />
+    <ellipse cx={-44} cy={8} rx={16} ry={22} fill={SKIN} stroke={INK} strokeWidth={5} />
+    <path
+      d="M -46 24 L -46 -14 C -46 -32 -24 -34 -23 -16 C -22 -34 0 -34 0 -16 C 0 -34 22 -34 23 -16 C 24 -34 46 -32 46 -14 L 46 20 C 46 34 36 38 24 38 L -30 38 C -42 38 -46 32 -46 24 Z"
+      fill={SKIN}
+      stroke={INK}
+      strokeWidth={5}
+      strokeLinejoin="round"
+    />
+    <path d="M -38 26 C -20 34 20 34 38 24 L 38 32 C 30 36 -30 36 -38 32 Z" fill={SKIN_SHADE} opacity={0.7} />
+    {[-23, 0, 23].map((x) => (
+      <path key={x} d={`M ${x} -16 C ${x - 2} -6 ${x - 2} 2 ${x} 8`} fill="none" stroke={INK} strokeWidth={4} strokeLinecap="round" />
+    ))}
+    {[-34, -11, 11, 34].map((x) => (
+      <line key={x} x1={x - 4} y1={-20} x2={x + 4} y2={-20} stroke={SKIN_SHADE} strokeWidth={4} strokeLinecap="round" />
+    ))}
+    <path d="M -40 -12 L -40 4" stroke={night.glow} strokeOpacity={0.45} strokeWidth={4} strokeLinecap="round" />
+    <path d="M -46 12 C -30 14 -16 10 -8 18" fill="none" stroke={INK} strokeWidth={4} strokeLinecap="round" />
+  </>
+);
+
 // Utvikler sett bakfra: hettegenser og hodetelefoner, med skjermlys i kanten.
 // Følelser vises tegneserieaktig: sway (hodet vipper litt mens han koder), vein (rødt sinne-merke),
 // grawlix (bannesky «#@$%!»), slump (0..1: hodet i en bue ned i pulten mens kroppen står stille),
-// hands (0..1: armene opp, «hands off keyboard») og pray (0..1: hendene samlet over hodet).
+// hands (0..1: armene opp med knyttnever, «hands off keyboard») og pray (0..1: nevene samlet over hodet).
+// Han sitter i en kontorstol: ryggen (med firkantet topp) dekker ryggen hans under skuldrene, og
+// armene kommer ut fra skuldrene på utsiden av stolen.
 export const Dev: React.FC<{
   cx: number;
   top: number;
@@ -269,6 +300,8 @@ export const Dev: React.FC<{
   const headY = bob + arc * 105;
   const headScale = 1 - arc * 0.22;
   const corner = "M 9 -28 Q 9 -9 28 -9";
+  const chair = "M -170 1200 L -170 248 Q -170 226 -148 226 L 148 226 Q 170 226 170 248 L 170 1200 Z";
+  const seam = "M -145 1200 L -145 266 Q -145 251 -130 251 L 130 251 Q 145 251 145 266 L 145 1200";
   return (
     <Svg>
       <defs>
@@ -297,25 +330,32 @@ export const Dev: React.FC<{
             </g>
           )}
         </g>
-        <path d={body} fill={night.black} />
-        <path d={body} fill="none" stroke={`url(#rim-${id})`} strokeWidth={4} filter={`url(#soft-${id})`} />
         {hands > 0 &&
           [-1, 1].map((side) => {
-            // Fra skulderen opp til hånda; ved bønn møtes hendene over hodet.
+            // Fra skulderen opp til hånda; ved bønn møtes hendene over hodet. Armene tegnes før kroppen
+            // og stolen, så de kommer fram under skuldrene.
             const up = { x: side * (175 - 150 * pray), y: -40 - 30 * pray };
-            const hx = side * 230 + (up.x - side * 230) * hands;
-            const hy = 330 + (up.y - 330) * hands + bob;
-            const ex = side * (260 - 20 * pray);
-            const ey = (330 + hy) / 2 + 20;
-            const arm = `M ${side * 200} 300 Q ${ex} ${ey} ${hx} ${hy}`;
+            const hx = side * 250 + (up.x - side * 250) * hands;
+            const hy = 340 + (up.y - 340) * hands + bob;
+            const ex = side * (280 - 30 * pray);
+            const ey = (340 + hy) / 2 + 20;
+            const arm = `M ${side * 235} 290 Q ${ex} ${ey} ${hx} ${hy}`;
             return (
               <g key={side}>
                 <path d={arm} fill="none" stroke="#1A2133" strokeWidth={58} strokeLinecap="round" />
                 <path d={arm} fill="none" stroke={night.black} strokeWidth={50} strokeLinecap="round" />
-                <circle cx={hx} cy={hy} r={32} fill={night.black} stroke={night.glow} strokeOpacity={0.35} strokeWidth={3} />
+                {/* Tegneserieneve (som hands.jpg): hudfarge, tykk brun kontur, fire buttede fingre, tommel på innsiden. */}
+                <g transform={`translate(${hx} ${hy}) scale(${side * 1.05} 1.05) rotate(${-10})`}>
+                  <Fist />
+                </g>
               </g>
             );
           })}
+        <path d={body} fill={night.black} />
+        <path d={body} fill="none" stroke={`url(#rim-${id})`} strokeWidth={4} filter={`url(#soft-${id})`} />
+        <path d={chair} fill="#161D2C" stroke="#2A3550" strokeWidth={4} />
+        <path d={seam} fill="none" stroke="#1F2738" strokeWidth={3} strokeDasharray="10 8" />
+        <path d="M -150 227 L 150 227" stroke={night.glow} strokeOpacity={0.3} strokeWidth={3} strokeLinecap="round" />
         {grawlix > 0 && (
           <g transform={`translate(-330 75) scale(${grawlix * 0.85}) rotate(${Math.sin(grawlix * 30) * 3})`}>
             <path
@@ -370,3 +410,33 @@ export const Vignette: React.FC = () => (
     style={{ background: "radial-gradient(ellipse at 55% 45%, transparent 45%, rgba(0,0,0,0.75) 100%)" }}
   />
 );
+
+// Noter som stiger opp fra hodetelefonene mens han er i flyt.
+export const Notes: React.FC<{ t: number; amount: number }> = ({ t, amount }) => {
+  if (amount <= 0) return null;
+  const cx = SCREEN_CENTER.x + 80;
+  return (
+    <>
+      {Array.from({ length: 6 }, (_, k) => {
+        const phase = (t * 0.8 + k / 6) % 1;
+        const side = k % 2 ? 1 : -1;
+        return (
+          <div
+            key={k}
+            style={{
+              position: "absolute",
+              left: cx + side * (150 + phase * 40) + Math.sin(phase * 7) * 14,
+              top: DESK_TOP - 20 - phase * 230,
+              fontSize: 46,
+              color: night.glow,
+              opacity: amount * Math.sin(phase * Math.PI),
+              textShadow: `0 0 14px ${night.glow}`,
+            }}
+          >
+            {k % 3 ? "♪" : "♫"}
+          </div>
+        );
+      })}
+    </>
+  );
+};

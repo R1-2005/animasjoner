@@ -3,7 +3,7 @@ import { ChatThread, DeployStack, DocScroll, Ouija, RefactorView, SqlEditor, Tea
 import { beatPos, kick, word } from "../beat";
 import { Smoke } from "../Effects";
 import { Arms, GremlinFigure, mixArms, POSES } from "../GremlinFigure";
-import { BACK_MONITORS, DESK_TOP, MONITOR, RACK, SCREEN_CENTER } from "../Office";
+import { BACK_MONITORS, DESK_TOP, MONITOR, Notes, RACK, SCREEN_CENTER } from "../Office";
 import { Phrase, Phrases } from "../Phrases";
 import { App, PowerShell, Taskbar, Toast, VisualStudio } from "../Screen";
 import { GREMLIN_DIM, Stage } from "../Stage";
@@ -286,35 +286,6 @@ const AnimeSparkles: React.FC<{ t: number; from: number; to: number }> = ({ t, f
     </>
   );
 };
-const Notes: React.FC<{ t: number; amount: number }> = ({ t, amount }) => {
-  if (amount <= 0) return null;
-  const cx = SCREEN_CENTER.x + 80;
-  return (
-    <>
-      {Array.from({ length: 6 }, (_, k) => {
-        const phase = (t * 0.8 + k / 6) % 1;
-        const side = k % 2 ? 1 : -1;
-        return (
-          <div
-            key={k}
-            style={{
-              position: "absolute",
-              left: cx + side * (150 + phase * 40) + Math.sin(phase * 7) * 14,
-              top: DESK_TOP - 20 - phase * 230,
-              fontSize: 46,
-              color: night.glow,
-              opacity: amount * Math.sin(phase * Math.PI),
-              textShadow: `0 0 14px ${night.glow}`,
-            }}
-          >
-            {k % 3 ? "♪" : "♫"}
-          </div>
-        );
-      })}
-    </>
-  );
-};
-
 export const Verse2: React.FC<{ t: number }> = ({ t }) => {
   const k = kick(t);
   const quality = t < T.zoom;
@@ -339,7 +310,7 @@ export const Verse2: React.FC<{ t: number }> = ({ t }) => {
         desktop={
           <>
             <Screen t={t} />
-            <Taskbar active={activeApp(t)} badges={badges(t)} focus={quality} />
+            <Taskbar active={activeApp(t)} badges={badges(t)} focus={quality} clock="21:01" />
             {TOASTS.map((x) => (
               <AbsoluteFill key={x.at} style={{ transform: x.shake && t > x.at ? `translate(${Math.sin(t * 60) * 6}px, ${Math.cos(t * 47) * 3}px)` : "none" }}>
                 <Toast t={t} {...x} />

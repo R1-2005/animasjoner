@@ -547,7 +547,8 @@ export const TeamsChat: React.FC<{ t: number; at: number; silent: number }> = ({
 };
 
 // Feilmeldinger i kaskade over hverandre, som et komishow. Hver dialog spretter inn på sitt tidspunkt.
-const ERRORS = [
+export type ErrorDialog = { title: string; text: string; icon: "x" | "!"; buttons?: string[] };
+export const ERRORS: ErrorDialog[] = [
   { title: "Feil", text: "Det oppstod en feil under visning av feilmeldingen.", icon: "x" },
   { title: "Uventet feil", text: "Feilen var forventet.", icon: "x" },
   { title: "Gremlin.Core", text: "Operasjonen ble fullført uten suksess.", icon: "!" },
@@ -566,9 +567,9 @@ const DIALOG_AT = [
   [380, 150],
   [250, 320],
 ];
-export const ErrorDialogs: React.FC<{ t: number; times: number[] }> = ({ t, times }) => (
+export const ErrorDialogs: React.FC<{ t: number; times: number[]; errors?: ErrorDialog[] }> = ({ t, times, errors = ERRORS }) => (
   <>
-    {ERRORS.map((e, i) => {
+    {errors.map((e, i) => {
       const at = times[i];
       if (at === undefined || t < at) return null;
       const s = interpolate(t, [at, at + 0.1], [0.7, 1], clamp);
@@ -659,45 +660,168 @@ export const StackTrace: React.FC<{ t: number; at: number }> = ({ t, at }) => {
 };
 
 // Release til prod som et containerskip: det seiler inn til kaia «PROD», tuter på «let's go!»,
-// og synker i stillheten etterpå. Statusen står på «Vellykket ✓» hele veien.
-const CONTAINERS = [
-  { label: "bugs", color: night.bug },
-  { label: "hotfix", color: night.boom },
-  { label: "TODO", color: night.merge },
-  { label: "--force", color: night.glow },
-  { label: "bin/obj", color: night.ok },
-  { label: "v2.0", color: "#E8A33D" },
-];
-export const ShipDeploy: React.FC<{ t: number; depart: number; arrive: number; horn: number; sink: number }> = ({
+// og synker i stillheten etterpå. Statusen står på «Vellykket ✓» hele veien. Hvert refreng har sitt
+// eget skip, og forliset blir verre for hver release: C1 synker med akterenden først, C2 stuper med
+// baugen først mens containerne sklir av dekk, C3 brekker på midten og går ned i to deler.
+export type Ship = {
+  release: string;
+  version: string;
+  containers: { label: string; color: string }[];
+  hull: string;
+  stripe: string;
+  wreck: 1 | 2 | 3;
+};
+export const SHIPS: Record<1 | 2 | 3, Ship> = {
+  1: {
+    release: "Release-1337",
+    version: "v2.0",
+    hull: "#2A2F3A",
+    stripe: night.bug,
+    wreck: 1,
+    containers: [
+      { label: "bugs", color: night.bug },
+      { label: "hotfix", color: night.boom },
+      { label: "TODO", color: night.merge },
+      { label: "--force", color: night.glow },
+      { label: "bin/obj", color: night.ok },
+    ],
+  },
+  2: {
+    release: "Release-1338",
+    version: "v2.1",
+    hull: "#4A1E2A",
+    stripe: "#E8EEF8",
+    wreck: 2,
+    containers: [
+      { label: "hotfix2", color: night.boom },
+      { label: "rollback", color: night.glow },
+      { label: "brann", color: night.bug },
+      { label: "FIXME", color: night.merge },
+      { label: "--no-verify", color: night.ok },
+      { label: "TODO", color: "#9AA5B8" },
+      { label: "kaffe", color: "#B07A4F" },
+    ],
+  },
+  3: {
+    release: "Release-1339",
+    version: "v2.2",
+    hull: "#1F2A44",
+    stripe: night.eyes,
+    wreck: 3,
+    containers: [
+      { label: "nødstrøm", color: night.boom },
+      { label: "YOLO", color: night.merge },
+      { label: "mørke", color: "#3A4458" },
+      { label: "--force", color: night.glow },
+      { label: "lys?", color: "#FFD27A" },
+    ],
+  },
+};
+
+// Containerne stables tre i bredden; versjonsnummeret ligger alltid øverst.
+const stack = (ship: Ship) => {
+  const all = [...ship.containers, { label: ship.version, color: "#E8A33D" }];
+  const perRow = ship.wreck === 2 ? 4 : 3;
+  return all.map((c, i) => ({ ...c, x: (ship.wreck === 2 ? 110 : 70) + (i % perRow) * 92, y: -50 - Math.floor(i / perRow) * 46 }));
+};
+
+export const ShipDeploy: React.FC<{ t: number; depart: number; arrive: number; horn: number; sink: number; ship?: Ship }> = ({
   t,
   depart,
   arrive,
   horn,
   sink,
+  ship = SHIPS[1],
 }) => {
+  const wreck = ship.wreck;
   const p = interpolate(t, [depart, arrive], [0, 1], { ...clamp, easing: (x) => 1 - (1 - x) ** 2 });
-  const sunk = interpolate(t, [sink, sink + 1.6], [0, 1], { ...clamp, easing: (x) => x * x });
+  const sinkTime = wreck === 1 ? 1.6 : 1.8;
+  const sunk = interpolate(t, [sink, sink + sinkTime], [0, 1], { ...clamp, easing: (x) => x * x });
+  const since = t - sink;
   const sea = H - 150;
-  const x = -480 + p * 960 - sunk * 40;
-  const y = sea - 70 + Math.sin(t * 3) * 4 + sunk * 260;
-  const tilt = Math.sin(t * 2.2) * 1.5 - sunk * 22;
+  const len = wreck === 2 ? 520 : 460;
+  const x = -480 + p * 960 - sunk * (wreck === 2 ? -30 : 40);
+  const bob = Math.sin(t * 3) * 4;
+  // C1: akterenden først. C2: stuper med baugen først. C3: midten først (to deler, se under).
+  const y = sea - 70 + bob + sunk * (wreck === 1 ? 260 : wreck === 2 ? 380 : 330);
+  const tilt = Math.sin(t * 2.2) * 1.5 + (wreck === 1 ? -sunk * 22 : wreck === 2 ? sunk * 48 : 0);
+  const pivot = wreck === 2 ? `${len - 40} 60` : "230 60";
   const puff = horn > 0 && t > horn ? t - horn : -1;
+  // C3: knekken. Midten synker, akter- og baugdelen reiser seg mot hverandre.
+  const crack = wreck === 3 ? interpolate(t, [sink, sink + 0.35, sink + sinkTime], [0, 14, 62], clamp) : 0;
+  const mid = len / 2;
   const waves = (phase: number, yy: number, amp: number) => {
     let d = `M 0 ${yy}`;
     for (let xx = 0; xx <= W + 20; xx += 20) d += ` L ${xx} ${yy + Math.sin(xx / 60 + t * 2 + phase) * amp}`;
     return `${d} L ${W} ${H} L 0 ${H} Z`;
   };
+
+  const containers = stack(ship).map((c, i) => {
+    // C2: containerne sklir av dekk mot baugen og ut i sjøen, én etter én.
+    const slide = wreck === 2 ? interpolate(since, [0.1 + i * 0.12, 1.2 + i * 0.12], [0, 1], { ...clamp, easing: (v) => v * v }) : 0;
+    return (
+      <g key={c.label} transform={`translate(${c.x + slide * 300} ${c.y + slide ** 3 * 220}) rotate(${slide * (40 + (i % 3) * 25)} 44 21)`}>
+        <rect width={88} height={42} fill={c.color} stroke="#0B1220" strokeWidth={2} />
+        <text x={44} y={28} textAnchor="middle" fontFamily={fonts.mono} fontSize={c.label.length > 8 ? 12 : 15} fontWeight={700} fill="#0B1220">
+          {c.label}
+        </text>
+      </g>
+    );
+  });
+
+  // Overbygget: broen akter på C2 (med to piper), ellers forut; C3 har opplyste koøyer.
+  const bridgeX = wreck === 2 ? 20 : 350;
+  const funnels = wreck === 2 ? [bridgeX + 8, bridgeX + 44] : [bridgeX + 22];
+  const smoke = wreck === 2 ? "#3C4250" : "#E8EEF8";
+  const body = (
+    <>
+      {containers}
+      <rect x={bridgeX} y={-110} width={70} height={110} fill={wreck === 3 ? "#C9D2E0" : "#D8DEE9"} />
+      <rect x={bridgeX + 12} y={-96} width={46} height={16} fill={wreck === 3 ? "#FFD27A" : "#0B1B30"} />
+      {funnels.map((fx) => (
+        <rect key={fx} x={fx} y={-150} width={wreck === 2 ? 20 : 26} height={40} fill={wreck === 3 ? night.eyes : night.bug} />
+      ))}
+      <path d={`M 0 0 L ${len} 0 L ${len - 30} 70 L 30 70 Z`} fill={ship.hull} stroke="#11151C" strokeWidth={3} />
+      <rect x={20} y={8} width={len - 40} height={8} fill={ship.stripe} opacity={0.8} />
+      {wreck === 3 &&
+        Array.from({ length: 9 }, (_, k) => (
+          <circle key={k} cx={50 + k * 45} cy={36} r={7} fill="#FFD27A" opacity={sunk > 0 ? 0.9 * (Math.sin(t * 40 + k) > 0 ? 1 : 0.2) : 0.9} />
+        ))}
+      <text x={wreck === 2 ? len - 140 : 40} y={56} fontFamily={fonts.mono} fontSize={16} fontWeight={700} fill="#E8EEF8" opacity={0.85}>
+        {ship.version}
+      </text>
+      {puff >= 0 &&
+        funnels.flatMap((fx) =>
+          [0, 1, 2].map((k) => {
+            const a = puff - k * 0.12;
+            if (a < 0 || a > 1.2) return null;
+            return <circle key={`${fx}-${k}`} cx={fx + 13 + a * 60} cy={-160 - a * 90} r={14 + a * 40} fill={smoke} opacity={0.8 * (1 - a / 1.2)} />;
+          }),
+        )}
+    </>
+  );
+
   return (
-    <Window app="devops" title="Release-1337 — Pipelines — Azure DevOps">
+    <Window app="devops" title={`${ship.release} — Pipelines — Azure DevOps`}>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(#0B1B30, #13304D)", overflow: "hidden", fontFamily: ui }}>
         <div style={{ position: "absolute", left: 24, top: 16, right: 24, display: "flex", alignItems: "center", gap: 18, color: win.text, fontSize: 22 }}>
-          <b>Release-1337 → prod</b>
+          <b>
+            {ship.release} · {ship.version} → prod
+          </b>
           <div style={{ flex: 1, height: 12, background: "#24384F", borderRadius: 6, overflow: "hidden" }}>
             <div style={{ width: `${p * 100}%`, height: "100%", background: night.ok }} />
           </div>
           {p >= 1 ? <Pill text="Vellykket ✓" bg="#1F845A" size={20} /> : <span style={{ color: win.dim }}>{Math.round(p * 100)} %</span>}
         </div>
         <svg width={W} height={H} style={{ position: "absolute", left: 0, top: 0 }}>
+          <defs>
+            <clipPath id="ship-aft">
+              <rect x={-200} y={-400} width={mid + 200} height={800} />
+            </clipPath>
+            <clipPath id="ship-fore">
+              <rect x={mid} y={-400} width={len + 200} height={800} />
+            </clipPath>
+          </defs>
           {/* Kaia med kran og skiltet PROD. */}
           <rect x={W - 150} y={sea - 40} width={150} height={190} fill="#1A2436" />
           <path d={`M ${W - 90} ${sea - 40} L ${W - 90} ${sea - 230} L ${W - 230} ${sea - 230}`} fill="none" stroke="#3A4A66" strokeWidth={10} />
@@ -705,39 +829,55 @@ export const ShipDeploy: React.FC<{ t: number; depart: number; arrive: number; h
           <text x={W - 75} y={sea - 60} textAnchor="middle" fontFamily={fonts.display} fontSize={44} fill={night.ok}>
             PROD
           </text>
-          <g transform={`translate(${x} ${y}) rotate(${tilt} 230 60)`}>
-            {CONTAINERS.map((c, i) => {
-              const col = i % 3;
-              const row = Math.floor(i / 3);
-              return (
-                <g key={c.label} transform={`translate(${70 + col * 92} ${-50 - row * 46})`}>
-                  <rect width={88} height={42} fill={c.color} stroke="#0B1220" strokeWidth={2} />
-                  <text x={44} y={28} textAnchor="middle" fontFamily={fonts.mono} fontSize={15} fontWeight={700} fill="#0B1220">
-                    {c.label}
-                  </text>
+          <g transform={`translate(${x} ${y}) rotate(${tilt} ${pivot})`}>
+            {wreck === 3 ? (
+              <>
+                <g transform={`rotate(${crack} ${mid} 70)`}>
+                  <g clipPath="url(#ship-aft)">{body}</g>
                 </g>
-              );
-            })}
-            <rect x={350} y={-110} width={70} height={110} fill="#D8DEE9" />
-            <rect x={362} y={-96} width={46} height={16} fill="#0B1B30" />
-            <rect x={372} y={-150} width={26} height={40} fill={night.bug} />
-            <path d="M 0 0 L 460 0 L 430 70 L 30 70 Z" fill="#2A2F3A" stroke="#11151C" strokeWidth={3} />
-            <rect x={20} y={8} width={420} height={8} fill={night.bug} opacity={0.8} />
-            {puff >= 0 &&
-              [0, 1, 2].map((k) => {
-                const a = puff - k * 0.12;
-                if (a < 0 || a > 1.2) return null;
-                return <circle key={k} cx={385 + a * 60} cy={-160 - a * 90} r={14 + a * 40} fill="#E8EEF8" opacity={0.8 * (1 - a / 1.2)} />;
-              })}
+                <g transform={`translate(${crack * 0.6} 0) rotate(${-crack} ${mid} 70)`}>
+                  <g clipPath="url(#ship-fore)">{body}</g>
+                </g>
+                {/* Gnister og et blaff der skroget knekker. */}
+                {since > 0 && since < 0.5 && (
+                  <circle cx={mid} cy={40} r={30 + since * 160} fill="#FFE27A" opacity={0.9 * (1 - since / 0.5)} />
+                )}
+              </>
+            ) : (
+              body
+            )}
           </g>
           {sunk > 0 &&
-            Array.from({ length: 8 }, (_, k) => {
-              const a = (t - sink - k * 0.15) % 1;
-              if (t - sink < k * 0.15) return null;
-              return <circle key={k} cx={x + 120 + k * 35} cy={sea - a * 60} r={4 + (k % 3) * 2} fill="none" stroke="#9FD8FF" strokeWidth={2} opacity={1 - a} />;
+            Array.from({ length: wreck === 1 ? 8 : 16 }, (_, k) => {
+              const a = (since - k * 0.1) % 1;
+              if (since < k * 0.1) return null;
+              const spread = wreck === 1 ? 35 : 28;
+              return (
+                <circle key={k} cx={x + 100 + k * spread} cy={sea - a * (wreck === 1 ? 60 : 110)} r={4 + (k % 3) * 3} fill="none" stroke="#9FD8FF" strokeWidth={2} opacity={1 - a} />
+              );
             })}
-          <path d={waves(0, sea, 6)} fill="#0F4C75" opacity={0.85} />
+          {/* Sprut når skipet går under (C2 og C3). */}
+          {wreck > 1 &&
+            since > 0 &&
+            [0, 1, 2, 3, 4, 5].map((k) => {
+              const a = interpolate(since - 0.2 - k * 0.06, [0, 0.8], [0, 1], clamp);
+              if (a <= 0 || a >= 1) return null;
+              const dir = k % 2 ? 1 : -1;
+              const cx = x + (wreck === 2 ? len - 60 : mid) + dir * (20 + k * 18) * a * 3;
+              return <circle key={`s${k}`} cx={cx} cy={sea - 4 - Math.sin(a * Math.PI) * (35 + k * 10)} r={5 + k} fill="#CFEFFF" opacity={0.7 * (1 - a)} />;
+            })}
+          <path d={waves(0, sea, wreck === 1 ? 6 : 6 + sunk * 8)} fill="#0F4C75" opacity={0.85} />
           <path d={waves(2, sea + 20, 5)} fill="#0B3A5B" />
+          {/* C3: igjen flyter bare en livbøye med versjonsnummeret. */}
+          {wreck === 3 && sunk > 0.55 && (
+            <g transform={`translate(${x + mid} ${sea + 4 + Math.sin(t * 3) * 5}) scale(${interpolate(sunk, [0.55, 0.75], [0.3, 1], clamp)})`}>
+              <circle r={30} fill="none" stroke="#F2F4F8" strokeWidth={16} />
+              <circle r={30} fill="none" stroke={night.bug} strokeWidth={16} strokeDasharray="23.5 23.5" />
+              <text y={58} textAnchor="middle" fontFamily={fonts.mono} fontSize={20} fontWeight={700} fill="#F2F4F8">
+                {ship.version}
+              </text>
+            </g>
+          )}
         </svg>
       </div>
     </Window>

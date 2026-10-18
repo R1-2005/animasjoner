@@ -1,12 +1,12 @@
 import { AbsoluteFill, Easing, interpolate } from "remotion";
-import { ErrorDialogs, ShipDeploy, StackTrace } from "../Apps";
+import { ErrorDialog, ErrorDialogs, SHIPS, ShipDeploy, StackTrace } from "../Apps";
 import { beatPos, kick, word } from "../beat";
 import { Boom, boomShake } from "../Boom";
 import { City, cityView, TARGET } from "../City";
 import { Fire, Smoke } from "../Effects";
 import { ShadowGremlin } from "../ShadowGremlin";
 import { Arms, GremlinFigure, mixArms, POSES } from "../GremlinFigure";
-import { BACK_MONITORS, DESK_TOP, RACK, SCREEN_CENTER } from "../Office";
+import { BACK_MONITORS, DESK_TOP, Notes, RACK, SCREEN_CENTER } from "../Office";
 import { Phrase, Phrases } from "../Phrases";
 import { App, DevOpsGraph, PowerShell, Taskbar, Toast, VisualStudio } from "../Screen";
 import { GREMLIN_DIM, Stage } from "../Stage";
@@ -34,8 +34,14 @@ type Variant = {
   written: string[];
   typed: string[];
   // Svaret fra remote etter --force (før «Gremlin approved this push.»).
+  // De tre grenene som merges inn i main (C1 bruker standardnavnene).
+  branches?: string[];
   pushReply: { text: string; color?: string }[];
   flood: Notification[];
+  // Feilmeldingene i komishowet (C*.6); C1 bruker standardsettet.
+  errors?: ErrorDialog[];
+  // Klokka i oppgavelinja: ett minutt senere for hvert refreng.
+  clock: string;
   frozenBadges: Partial<Record<App, string>>;
 };
 
@@ -67,6 +73,7 @@ const VARIANTS: Record<number, Variant> = {
       { app: "slack", from: "Slack · #lansering", title: "Ledelsen", body: "Er det deployet nå?" },
       { app: "jira", from: "Jira", title: "GRM-1337", body: "Du er nevnt i 14 kommentarer" },
     ],
+    clock: "21:01",
     frozenBadges: { outlook: "60", teams: "27", slack: "22", jira: "19" },
   },
   2: {
@@ -83,16 +90,27 @@ const VARIANTS: Record<number, Variant> = {
       "    var kopi = original; // backup",
       "    var kopi2 = kopi; // backup av backup",
     ],
+    branches: ["feature/raskere-fiks", "hotfix/final-FINAL", "yolo/lørdag"],
     pushReply: [
       { text: "fatal: the remote end hung up unexpectedly", color: night.bug },
       { text: "remote: serverrommet brenner", color: night.boom },
     ],
     flood: [
-      { app: "teams", from: "Microsoft Teams", title: "Per", body: "Lukter det brent hos dere?" },
-      { app: "outlook", from: "Outlook", title: "Ledelsen", body: "Hvorfor er alt nede?" },
-      { app: "slack", from: "Slack · #drift", title: "Drift", body: "Serverrommet brenner. Normalt?" },
-      { app: "jira", from: "Jira", title: "GRM-1337", body: "Status endret til: I brann" },
+      { app: "teams", from: "Microsoft Teams", title: "Brannvesenet", body: "Vi står utenfor. Har du 5 min?" },
+      { app: "outlook", from: "Outlook · HR", title: "Påminnelse: brannøvelse", body: "I dag kl. 21:02. Oppmøte ved serverrommet." },
+      { app: "slack", from: "Slack · #kantina", title: "Vaktmesteren", body: "Hvem har satt på grillen?" },
+      { app: "jira", from: "Jira", title: "GRM-110", body: "Prioritet endret til: Brennende" },
     ],
+    errors: [
+      { title: "Brannalarm", text: "Brannalarmen er flyttet til neste sprint.", icon: "!" },
+      { title: "Feil", text: "Serveren er for varm til å svare.", icon: "x" },
+      { title: "Gremlin.Core", text: "Røykvarsleren oppdaget kode.", icon: "!" },
+      { title: "Feil 0x0000B00M", text: "451 °C. Innenfor SLA.", icon: "x" },
+      { title: "Advarsel", text: "Vil du slukke brannen?", icon: "!", buttons: ["Senere", "I morgen"] },
+      { title: "Azure", text: "Skyen er nå bokstavelig talt røyk.", icon: "x" },
+      { title: "Visual Studio", text: "Autolagring fullført. Filene er nå aske.", icon: "!" },
+    ],
+    clock: "21:02",
     frozenBadges: { outlook: "99+", teams: "99+", slack: "79", jira: "53" },
   },
   3: {
@@ -108,16 +126,27 @@ const VARIANTS: Record<number, Variant> = {
       "    // TODO: betale strømregningen",
       "    void Lansering() => Lansering(); // rekursivt optimistisk",
     ],
+    branches: ["feature/skru-på-lyset", "hotfix/ekte-final", "yolo/søndag-natt"],
     pushReply: [
       { text: "remote: kjører på nødstrøm", color: night.boom },
       { text: " + b00m420...d4rk000 main -> main (forced update)", color: night.boom },
     ],
     flood: [
-      { app: "teams", from: "Microsoft Teams", title: "Per", body: "Er det strømbrudd hos dere også?" },
-      { app: "outlook", from: "Outlook", title: "Ledelsen", body: "Kan du jobbe offline?" },
-      { app: "slack", from: "Slack · #drift", title: "Drift", body: "Hele kvartalet er mørkt." },
-      { app: "jira", from: "Jira", title: "GRM-1337", body: "Blokkert av: strøm" },
+      { app: "teams", from: "Microsoft Teams", title: "Nettselskapet", body: "Strømmen er tilbake om 4–6 sprinter." },
+      { app: "outlook", from: "Outlook · Økonomi", title: "Strømregningen", body: "Betalt. Nesten." },
+      { app: "slack", from: "Slack · #tilfeldig", title: "Per", body: "Noen som har fyrstikker?" },
+      { app: "jira", from: "Jira", title: "GRM-1338", body: "Ny oppgave: Finn lysbryteren" },
     ],
+    errors: [
+      { title: "Strømbrudd", text: "Vil du lagre arbeidet? (Det kan du ikke.)", icon: "x" },
+      { title: "Batteri", text: "1 % igjen. Kanskje 2.", icon: "!" },
+      { title: "Gremlin.Core", text: "Fant ikke strømnettet. Har du prøvd å skru det på?", icon: "x" },
+      { title: "Feil 0x0000D4RK", text: "Det er mørkt her. Er du der?", icon: "x" },
+      { title: "Advarsel", text: "Vil du fortsette i mørket?", icon: "!", buttons: ["Ja", "Hvorfor ikke"] },
+      { title: "Windows Update", text: "Starter på nytt om 5 minutter. Uansett.", icon: "!" },
+      { title: "Visual Studio", text: "Fant ikke lyset i enden av tunnelen.", icon: "x" },
+    ],
+    clock: "21:03",
     frozenBadges: { outlook: "99+", teams: "99+", slack: "99+", jira: "64" },
   },
 };
@@ -147,36 +176,6 @@ const PopIn: React.FC<{ t: number; at: number; side: -1 | 1; y: number; laugh: n
       look={-side}
       tilt={-side * 20 + Math.sin(dt * 22) * 6}
     />
-  );
-};
-
-// Noter som stiger opp fra hodetelefonene mens han er i flyt.
-const Notes: React.FC<{ t: number; amount: number }> = ({ t, amount }) => {
-  if (amount <= 0) return null;
-  const cx = SCREEN_CENTER.x + 80;
-  return (
-    <>
-      {Array.from({ length: 6 }, (_, k) => {
-        const phase = (t * 0.8 + k / 6) % 1;
-        const side = k % 2 ? 1 : -1;
-        return (
-          <div
-            key={k}
-            style={{
-              position: "absolute",
-              left: cx + side * (150 + phase * 40) + Math.sin(phase * 7) * 14,
-              top: DESK_TOP - 20 - phase * 230,
-              fontSize: 46,
-              color: night.glow,
-              opacity: amount * Math.sin(phase * Math.PI),
-              textShadow: `0 0 14px ${night.glow}`,
-            }}
-          >
-            {k % 3 ? "♪" : "♫"}
-          </div>
-        );
-      })}
-    </>
   );
 };
 
@@ -255,9 +254,9 @@ const makeChorus = (n: number) => {
   const TERM = blackout ? LAND + 0.25 : BANGS[1] + 0.3;
   const FORCE = TERM + 0.9;
   const APPROVED = FORCE + 1.1;
-  // Hodet i pulten igjen, på to slag et par sekunder ut i stack tracen.
+  // Hodet i pulten igjen, på tre slag et par sekunder ut i stack tracen.
   const firstTraceBang = Math.ceil(beatPos(T.click + 1.8));
-  const TRACE_BANGS = [0, 1].map((i) => TIMING.firstDownbeat + (firstTraceBang + i) * TIMING.beat);
+  const TRACE_BANGS = [0, 1, 2].map((i) => TIMING.firstDownbeat + (firstTraceBang + i) * TIMING.beat);
 
   const FLOOD_AT = T.messin + 0.05;
   const ERRORS_AT = Array.from({ length: 7 }, (_, i) => T.every + 0.06 + i * 0.4);
@@ -351,7 +350,7 @@ const makeChorus = (n: number) => {
 
   const Screen: React.FC<{ t: number }> = ({ t }) => {
     if (t < T.merges[0] - 0.5) return <VisualStudio t={t} from={START} written={V.written} typed={V.typed} file={V.file} />;
-    if (t < T.boom) return <DevOpsGraph t={t} merges={T.merges} explodes={T.explodes} />;
+    if (t < T.boom) return <DevOpsGraph t={t} merges={T.merges} explodes={T.explodes} names={V.branches} />;
     if (t < T.every)
       return (
         <PowerShell
@@ -370,11 +369,20 @@ const makeChorus = (n: number) => {
       return (
         <>
           <VisualStudio t={t} from={T.every} written={[...V.written, ...V.typed]} typed={[""]} file={V.file} />
-          <ErrorDialogs t={t} times={ERRORS_AT} />
+          <ErrorDialogs t={t} times={ERRORS_AT} errors={V.errors} />
         </>
       );
     if (t < T.ship) return <StackTrace t={t} at={T.click} />;
-    return <ShipDeploy t={t} depart={T.ship} arrive={T.horn + 0.45} horn={T.horn} sink={silence + 0.15} />;
+    return (
+      <ShipDeploy
+        t={t}
+        depart={T.ship}
+        arrive={blackout ? T.horn - 0.3 : T.horn + 0.45}
+        horn={T.horn}
+        sink={blackout ? T.horn + 0.1 : silence + 0.15}
+        ship={SHIPS[n as 1 | 2 | 3]}
+      />
+    );
   };
 
   const activeApp = (t: number): App =>
@@ -454,7 +462,7 @@ const makeChorus = (n: number) => {
           desktop={
             <>
               <Screen t={t} />
-              <Taskbar active={activeApp(t)} badges={t < FLOOD_AT ? V.frozenBadges : FLOODED} focus={t < FLOOD_AT} />
+              <Taskbar active={activeApp(t)} badges={t < FLOOD_AT ? V.frozenBadges : FLOODED} focus={t < FLOOD_AT} clock={V.clock} />
               {V.flood.map((f, i) => (
                 <Toast key={f.body} t={t} at={FLOOD_AT + i * 0.12} until={T.every + 0.1 + i * 0.05} slot={i} {...f} />
               ))}

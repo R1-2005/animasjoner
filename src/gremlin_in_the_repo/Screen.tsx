@@ -291,15 +291,20 @@ export const VisualStudio: React.FC<{ t: number; from: number; written: string[]
 
 // Azure DevOps › Repos › Historikk: tre grener smelter inn i main, én per «merge».
 // Ved «explodes» blir main rød og en «Build failed»-stripe dukker opp.
-export const DevOpsGraph: React.FC<{ t: number; merges: number[]; explodes: number }> = ({ t, merges, explodes }) => {
+export const DevOpsGraph: React.FC<{ t: number; merges: number[]; explodes: number; names?: string[] }> = ({
+  t,
+  merges,
+  explodes,
+  names = ["feature/rask-fiks", "hotfix/hotfix-2-final", "yolo/fredag"],
+}) => {
   const nav = 64;
   const W = SCREEN.w - nav;
   const H = SCREEN.h - TASKBAR - TITLE - 60;
   const mainY = H * 0.52;
   const branches = [
-    { x: W * 0.3, y: H * 0.2, name: "feature/rask-fiks" },
-    { x: W * 0.53, y: H * 0.84, name: "hotfix/hotfix-2-final" },
-    { x: W * 0.76, y: H * 0.2, name: "yolo/fredag" },
+    { x: W * 0.3, y: H * 0.2, name: names[0] },
+    { x: W * 0.53, y: H * 0.84, name: names[1] },
+    { x: W * 0.76, y: H * 0.2, name: names[2] },
   ];
   const danger = t > explodes;
   const shake = danger ? Math.sin(t * 90) * 6 * interpolate(t, [explodes, explodes + 0.4], [0.3, 1], clamp) : 0;
