@@ -1,0 +1,75 @@
+[Intro]
+Yeah, yeah
+Gremlin gang in the buildin’ (hey!)
+Push that code, push that code, uh
+
+[Verse 1]
+Slack ping, 9 a.m., camera off, hair tragic
+Gremlin on the laptop, every keystroke magic
+Coffee on the trackpad, Agile lookin’ fragile
+Ticket says “simple,” now it’s seven-week battle
+Standup in pajamas, talkin’ “velocity”
+Tab count look like ancient philosophy
+Four PRs open, scope creep creepin’
+Task list scroll like I never stopped dreamin’
+Wi-Fi hiccup, repo hiccup
+Story point low, but the stress stay stick-up
+Bug in the backlog blinkin’ like a siren
+“Who touched prod?” everybody stay silent
+
+[Chorus]
+We got Gremlin in the repo, chaos in the cloud (in the cloud!)
+Work-from-home warriors, debuggin’ out loud (out loud!)
+Merge, merge, merge, then it all explodes (boom!)
+Still we push that code, still we push that code
+Gremlin in the repo, messin’ with the flow (with the flow!)
+Every lil’ error be a comedy show (ha!)
+Click, clack, stack trace, everywhere we go
+Still we ship that load, still we ship that load (let’s go!)
+
+[Verse 2]
+High-pitched nerd with the nasally narration
+Type like I’m writing dissertation incantations
+Refactor raptor, syntax chiropractor
+Docstring longer than the sprint retro capture
+Zoom froze mid-joke, I’m stuck mid-grimace
+Boss think I’m serious, instant image pivot
+SQL query look cute, anime eyes
+Hit run, see the rows say “prepare to die”
+Got
+“Invalid column,” “ambiguous reference”
+Database drama like prestige television
+Rollback, fall back, hands off keyboard
+Prayin’ to the schema like a digital weeboard
+Unit tests flakin’, stakehold’ shakin’
+“I saw it in staging!” “Nah, that’s fakin’”
+Click one button, whole stack smokin’
+Gremlin in the codebase, laughin’ and chokin’ (heh!)
+
+[Chorus]
+We got Gremlin in the repo, chaos in the cloud (in the cloud!)
+Work-from-home warriors, debuggin’ out loud (out loud!)
+Merge, merge, merge, then it all explodes (boom!)
+Still we push that code, still we push that code
+Gremlin in the repo, messin’ with the flow (with the flow!)
+Every lil’ error be a comedy show (ha!)
+Click, clack, stack trace, everywhere we go
+Still we ship that load, still we ship that load (go!)
+
+[Bridge]
+Standup at eleven, burnout at noon
+Deploy in the evenin’, fixin’ till June
+Keyboard karate, caffeine confetti
+Gremlin team screamin’, “Ship it when it’s ready!” (ship it!)
+Chaos in the backlog, peace in the log
+We’re the bug-tamin’, flame-framin’ digital mob
+
+[Chorus]
+We got Gremlin in the repo, chaos in the cloud (in the cloud!)
+Work-from-home warriors, debuggin’ out loud (out loud!)
+Merge, merge, merge, then it all explodes (boom!)
+Still we push that code, still we push that code
+Gremlin in the repo, messin’ with the flow (with the flow!)
+Every lil’ error be a comedy show (ha!)
+Click, clack, stack trace, everywhere we go
+Still we ship that load, still we ship that load (Gremlin!)
