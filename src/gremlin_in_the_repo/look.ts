@@ -55,10 +55,13 @@ export const night = {
     vs: { label: "VS", color: "#68217A" },
     outlook: { label: "O", color: "#0F6CBD" },
     teams: { label: "T", color: "#5B5FC7" },
+    slack: { label: "S", color: "#4A154B" },
     jira: { label: "J", color: "#2684FF" },
     confluence: { label: "C", color: "#1868DB" },
     devops: { label: "DO", color: "#0078D4" },
     terminal: { label: ">_", color: "#2D2D2D" },
+    edge: { label: "e", color: "#0C59A4" },
+    taskmgr: { label: "≡", color: "#3A6E3A" },
   },
 } as const;
 

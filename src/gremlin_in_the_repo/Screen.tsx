@@ -87,8 +87,17 @@ export const Window: React.FC<{ app: App; title: string; background?: string; ch
   </div>
 );
 
-// Oppgavelinja: Start, appene, klokka. badges = tallet i det røde merket per app.
-export const Taskbar: React.FC<{ active: App; badges?: Partial<Record<App, string>> }> = ({ active, badges = {} }) => (
+// Appene som er festet til oppgavelinja (resten vises bare som vinduer).
+const PINNED: App[] = ["vs", "outlook", "teams", "slack", "jira", "confluence", "devops", "terminal"];
+
+// Oppgavelinja: Start, appene, klokka. badges = tallet i det røde merket per app; offline = Wi-Fi nede;
+// focus = «Ikke forstyrr» er på (måne ved klokka).
+export const Taskbar: React.FC<{ active: App; badges?: Partial<Record<App, string>>; offline?: boolean; focus?: boolean }> = ({
+  active,
+  badges = {},
+  offline = false,
+  focus = false,
+}) => (
   <div
     style={{
       position: "absolute",
@@ -107,7 +116,7 @@ export const Taskbar: React.FC<{ active: App; badges?: Partial<Record<App, strin
     <svg width={30} height={30}>
       {[0, 1].flatMap((i) => [0, 1].map((j) => <rect key={`${i}${j}`} x={i * 16} y={j * 16} width={14} height={14} fill={win.accent} />))}
     </svg>
-    {(Object.keys(apps) as App[]).map((app) => (
+    {PINNED.map((app) => (
       <div key={app} style={{ position: "relative", paddingBottom: 4 }}>
         <AppTile app={app} size={32} />
         {badges[app] && (
@@ -146,16 +155,28 @@ export const Taskbar: React.FC<{ active: App; badges?: Partial<Record<App, strin
         />
       </div>
     ))}
+    {focus && (
+      <svg width={26} height={26} style={{ position: "absolute", right: 162 }}>
+        <path d="M 17 3 A 10 10 0 1 0 23 17 A 8 8 0 0 1 17 3 Z" fill={win.accent} />
+      </svg>
+    )}
+    <svg width={30} height={24} style={{ position: "absolute", right: 120 }} fill="none" strokeLinecap="round">
+      {[18, 12, 6].map((r) => (
+        <path key={r} d={`M ${15 - r} ${20 - r * 0.55} A ${r} ${r} 0 0 1 ${15 + r} ${20 - r * 0.55}`} stroke={offline ? win.dim : win.text} strokeWidth={2.4} />
+      ))}
+      <circle cx={15} cy={20} r={2} fill={offline ? win.dim : win.text} />
+      {offline && <path d="M 19 11 L 29 21 M 29 11 L 19 21" stroke="#FF5B5B" strokeWidth={3.5} />}
+    </svg>
     <div style={{ position: "absolute", right: 18, fontFamily: ui, fontSize: 16, color: win.text, textAlign: "right", lineHeight: 1.25 }}>
-      02:47
+      21:00
       <br />
       <span style={{ color: win.dim }}>18.10.2026</span>
     </div>
   </div>
 );
 
-// Windows-varsel nederst til høyre: glir inn, blir stående, glir ut.
-export const Toast: React.FC<{ t: number; at: number; until: number; app: App; from: string; title: string; body: string }> = ({
+// Windows-varsel nederst til høyre: glir inn, blir stående, glir ut. slot stabler flere oppover.
+export const Toast: React.FC<{ t: number; at: number; until: number; app: App; from: string; title: string; body: string; slot?: number }> = ({
   t,
   at,
   until,
@@ -163,6 +184,7 @@ export const Toast: React.FC<{ t: number; at: number; until: number; app: App; f
   from,
   title,
   body,
+  slot = 0,
 }) => {
   if (t < at || t > until + 0.3) return null;
   const slide = interpolate(t, [at, at + 0.15, until, until + 0.25], [1, 0, 0, 1], clamp);
@@ -171,7 +193,7 @@ export const Toast: React.FC<{ t: number; at: number; until: number; app: App; f
       style={{
         position: "absolute",
         right: 16,
-        bottom: TASKBAR + 16,
+        bottom: TASKBAR + 16 + slot * 132,
         width: 470,
         padding: "16px 18px",
         background: win.toast,
@@ -250,7 +272,7 @@ export const VisualStudio: React.FC<{ t: number; from: number; written: string[]
         <div style={{ position: "absolute", top, left: 0, right: 0 }}>
           {lines.slice(0, current + 1).map((line, i) => (
             <div key={i} style={{ display: "flex", whiteSpace: "pre", height: LINE }}>
-              <span style={{ width: 70, textAlign: "right", paddingRight: 24, color: "#2B91AF" }}>{i + 1}</span>
+              <span style={{ width: 70, flexShrink: 0, textAlign: "right", paddingRight: 24, color: "#2B91AF" }}>{i + 1}</span>
               <span>
                 {colorize(i === current ? line.slice(0, shown) : line)}
                 {i === current && cursorOn && (

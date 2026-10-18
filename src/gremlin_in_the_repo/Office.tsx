@@ -101,7 +101,11 @@ export const BackDeskTop: React.FC = () => (
 );
 
 // De små skjermene på pultene bak. glitch (0..1) per skjerm: rødt bildestøy.
-export const BackMonitors: React.FC<{ t: number; glitch: number[] }> = ({ t, glitch }) => (
+export const BackMonitors: React.FC<{ t: number; glitch: number[]; glitchColor?: string[] }> = ({
+  t,
+  glitch,
+  glitchColor = [],
+}) => (
   <Svg>
     {BACK_MONITORS.map((m, i) => {
       const g = glitch[i] ?? 0;
@@ -118,7 +122,7 @@ export const BackMonitors: React.FC<{ t: number; glitch: number[] }> = ({ t, gli
                 y={m.y + 7 + k * 11}
                 width={(m.w - 14) * (0.4 + random(`gw${i}-${k}-${tick}`) * 0.6)}
                 height={6 + random(`gh${i}-${k}-${tick}`) * 6}
-                fill={random(`gc${i}-${k}-${tick}`) > 0.3 ? night.bug : night.text}
+                fill={random(`gc${i}-${k}-${tick}`) > 0.3 ? (glitchColor[i] ?? night.bug) : night.text}
                 opacity={g * 0.85}
               />
             ))}
@@ -178,35 +182,63 @@ const DESK_X = 540;
 export const DESK_TOP = MONITOR.y + MONITOR.h + 90;
 
 // Pulten foran utvikleren, med en kaffekopp som får skjermlys på siden.
-export const MainDesk: React.FC<{ steam: number }> = ({ steam }) => (
-  <Svg>
-    <defs>
-      <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor={night.wallLit} />
-        <stop offset="0.15" stopColor={night.desk} />
-      </linearGradient>
-    </defs>
-    <path d={`M ${DESK_X} ${DESK_TOP} L 1920 ${DESK_TOP} L 1920 1080 L ${DESK_X} 1080 Z`} fill="url(#desk)" />
-    <rect x={DESK_X} y={DESK_TOP} width={1920 - DESK_X} height={2} fill={night.glow} opacity={0.35} />
-    <g transform={`translate(1790 ${DESK_TOP - 60})`}>
-      <rect x={0} y={0} width={56} height={66} rx={8} fill={night.black} />
-      <path d="M 56 16 q 26 0 26 20 q 0 20 -26 20" fill="none" stroke={night.black} strokeWidth={9} />
-      <rect x={0} y={0} width={4} height={66} fill={night.glow} opacity={0.5} />
-      {[0, 1].map((i) => (
-        <path
-          key={i}
-          d={`M ${18 + i * 18} -8 q -8 -14 0 -28 q 8 -14 0 -28`}
-          fill="none"
-          stroke={night.dim}
-          strokeWidth={4}
-          strokeLinecap="round"
-          opacity={0.35 + 0.25 * Math.sin(steam * 3 + i * 2)}
-          transform={`translate(${Math.sin(steam * 2 + i) * 4} 0)`}
-        />
-      ))}
-    </g>
-  </Svg>
-);
+// Koppen kan veltes: claw (0..1) er en Gremlin-klo som stikker inn fra høyre kant, tip (0..1)
+// velter koppen mot venstre, spill (0..1) er kaffepytten som brer seg på pulten.
+export type Mug = { claw?: number; tip?: number; spill?: number };
+const MUG = { x: 1790, w: 56, h: 66 };
+
+export const MainDesk: React.FC<{ steam: number; mug?: Mug }> = ({ steam, mug = {} }) => {
+  const { claw = 0, tip = 0, spill = 0 } = mug;
+  const handX = 1940 - 95 * claw;
+  const handY = DESK_TOP - 34;
+  return (
+    <Svg>
+      <defs>
+        <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={night.wallLit} />
+          <stop offset="0.15" stopColor={night.desk} />
+        </linearGradient>
+      </defs>
+      <path d={`M ${DESK_X} ${DESK_TOP} L 1920 ${DESK_TOP} L 1920 1080 L ${DESK_X} 1080 Z`} fill="url(#desk)" />
+      <rect x={DESK_X} y={DESK_TOP} width={1920 - DESK_X} height={2} fill={night.glow} opacity={0.35} />
+      {spill > 0 && (
+        <g>
+          <ellipse cx={MUG.x - 40 - 60 * spill} cy={DESK_TOP + 8} rx={160 * spill} ry={18 * spill} fill="#7A4A26" />
+          <ellipse cx={MUG.x - 40 - 60 * spill} cy={DESK_TOP + 8} rx={160 * spill} ry={18 * spill} fill="none" stroke="#A86B3C" strokeWidth={2} />
+          <ellipse cx={MUG.x - 80 - 60 * spill} cy={DESK_TOP + 3} rx={70 * spill} ry={4 * spill} fill={night.glow} opacity={0.45} />
+        </g>
+      )}
+      <g transform={`translate(${MUG.x} ${DESK_TOP - MUG.h + 6}) rotate(${-92 * tip} 0 ${MUG.h})`}>
+        <rect x={0} y={0} width={MUG.w} height={MUG.h} rx={8} fill={night.black} />
+        <path d="M 56 16 q 26 0 26 20 q 0 20 -26 20" fill="none" stroke={night.black} strokeWidth={9} />
+        <rect x={0} y={0} width={4} height={MUG.h} fill={night.glow} opacity={0.5} />
+        {tip === 0 &&
+          [0, 1].map((i) => (
+            <path
+              key={i}
+              d={`M ${18 + i * 18} -8 q -8 -14 0 -28 q 8 -14 0 -28`}
+              fill="none"
+              stroke={night.dim}
+              strokeWidth={4}
+              strokeLinecap="round"
+              opacity={0.35 + 0.25 * Math.sin(steam * 3 + i * 2)}
+              transform={`translate(${Math.sin(steam * 2 + i) * 4} 0)`}
+            />
+          ))}
+      </g>
+      {claw > 0 && (
+        <g fill="none" strokeLinecap="round" opacity={0.85}>
+          <path d={`M 1990 ${handY + 30} Q ${handX + 60} ${handY + 10} ${handX} ${handY}`} stroke="#2A3754" strokeWidth={30} />
+          <path d={`M 1990 ${handY + 30} Q ${handX + 60} ${handY + 10} ${handX} ${handY}`} stroke={night.black} strokeWidth={24} />
+          {[-30, 0, 30].map((a) => {
+            const r = ((180 + a) * Math.PI) / 180;
+            return <path key={a} d={`M ${handX} ${handY} l ${Math.cos(r) * 24} ${Math.sin(r) * 24}`} stroke={night.black} strokeWidth={8} />;
+          })}
+        </g>
+      )}
+    </Svg>
+  );
+};
 
 // Utvikler sett bakfra: hettegenser og hodetelefoner, med skjermlys i kanten.
 // Følelser vises tegneserieaktig: sway (hodet vipper litt mens han koder), vein (rødt sinne-merke),

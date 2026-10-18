@@ -3,7 +3,9 @@ import { AbsoluteFill, staticFile } from "remotion";
 import { useSongTime } from "./beat";
 import { fonts, night } from "./look";
 import { Taskbar, VisualStudio } from "./Screen";
+import { CHORUS1_END, Chorus1 } from "./sections/Chorus1";
 import { INTRO_END, Intro } from "./sections/Intro";
+import { VERSE1_END, Verse1 } from "./sections/Verse1";
 import { Stage } from "./Stage";
 import { TIMING } from "./timing";
 
@@ -42,7 +44,10 @@ const Sketch: React.FC<{ t: number }> = ({ t }) => {
 
 const Video: React.FC = () => {
   const t = useSongTime();
-  return t < INTRO_END ? <Intro t={t} /> : <Sketch t={t} />;
+  if (t < INTRO_END) return <Intro t={t} />;
+  if (t < VERSE1_END) return <Verse1 t={t} />;
+  if (t < CHORUS1_END) return <Chorus1 t={t} />;
+  return <Sketch t={t} />;
 };
 
 export const GremlinInTheRepo: React.FC = () => (
